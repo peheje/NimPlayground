@@ -1,19 +1,31 @@
 import algorithm
 import random
+import math
 import marshal
 
+randomize()
+
 # Globals
-const N_GENERATIONS = 1000
+const N_GENERATIONS = 10000
 const POPULATION_SIZE = 10000
-const NUM_CHARACTERS = 11
-const TARGET = @[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-const MUTATE_P = 0.1
+const NUM_CHARACTERS = 1000
+const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
+const MUTATE_PROP = 0.10
+const MUTATE_RATE = 0.05
+const CROSSOVER_PROP = 0.10
+const CROSSOVER_RATE = 0.05
 
 # Agent type
 type
     Agent* = ref object
         data*: seq[int]
         fitness*: float
+
+proc pick(pool: seq[Agent], wheel: seq[float]): Agent =
+    let r = random(wheel[^1])
+    let idx = min(wheel.lowerBound(r), POPULATION_SIZE-1)
+    deepCopy(result, pool[idx])
+
 proc newAgent(): Agent =
     result = Agent()
     result.fitness = -1.0
@@ -25,7 +37,7 @@ method `>`(this: Agent, other: Agent): bool {.base.} =
     result = this.fitness > other.fitness
 
 method print(this: Agent) {.base.} = 
-    echo(this.fitness, " -> ", $$this.data)
+    echo(sqrt(this.fitness), " -> ", $$this.data)
 
 method calcFitness(this: Agent) {.base.} =
     this.fitness = 0.0
@@ -36,8 +48,14 @@ method calcFitness(this: Agent) {.base.} =
 
 method mutate(this: Agent) {.base.} =
     for i in 0..<this.data.len:
-        if random(1.0) < MUTATE_P:
+        if random(1.0) < MUTATE_RATE:
             this.data[i] = random(NUM_CHARACTERS)
+
+method crossover(this: Agent, pool: seq[Agent], wheel: seq[float]) {.base.} =
+    let mate = pick(pool, wheel)
+    for i in 0..<this.data.len:
+        if random(1.0) < CROSSOVER_RATE:
+            swap(mate.data[i], this.data[i])
 
 # Procedures
 proc createWheel(pool: seq[Agent]): seq[float] =
@@ -47,13 +65,7 @@ proc createWheel(pool: seq[Agent]): seq[float] =
         s += pool[i].fitness
         result[i] = s
 
-proc pick(pool: seq[Agent], wheel: seq[float]): Agent =
-    let r = random(wheel[^1])
-    let idx = min(wheel.lowerBound(r), POPULATION_SIZE-1)
-    deepCopy(result, pool[idx])
-
-proc createPool(pool: seq[Agent]): seq[Agent] =
-    let wheel = createWheel(pool)
+proc createPool(pool: seq[Agent], wheel: seq[float]): seq[Agent] =
     result = newSeq[Agent](POPULATION_SIZE)
     for i in 0..<pool.len:
         result[i] = pick(pool, wheel)
@@ -67,16 +79,21 @@ proc maxAgent(pool: seq[Agent]): Agent =
 var pool = newSeq[Agent](POPULATION_SIZE)
 for i in 0..<POPULATION_SIZE:
     pool[i] = newAgent()
+    pool[i].calcFitness()
 
 # Run generations
-
 for gen in 0..<N_GENERATIONS:
+    let wheel = createWheel(pool)
     for i in 0..<POPULATION_SIZE:
-        pool[i].mutate()
-        # pool[i].crossover(pool)
+        if random(1.0) < CROSSOVER_PROP:
+            pool[i].crossover(pool, wheel)
+        if random(1.0) < MUTATE_PROP:
+            pool[i].mutate()
         pool[i].calcFitness()
-    pool = createPool(pool)
+    pool = createPool(pool, wheel)
+
     if gen mod 100 == 0:
         echo("Generation, ", gen, "/", N_GENERATIONS)
+        let best = maxAgent(pool)        
         stdout.write("best: ")
-        maxAgent(pool).print()
+        best.print()
