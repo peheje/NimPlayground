@@ -21,17 +21,17 @@ type
         data*: seq[int]
         fitness*: float
 
-proc pick(pool: seq[Agent], wheel: seq[float]): Agent =
-    let r = random(wheel[^1])
-    let idx = min(wheel.lowerBound(r), POPULATION_SIZE-1)
-    deepCopy(result, pool[idx])
-
 proc newAgent(): Agent =
     result = Agent()
     result.fitness = -1.0
     result.data = newSeq[int](TARGET.len)
     for i in 0..<TARGET.len:
         result.data[i] = random(NUM_CHARACTERS)
+
+proc pick(pool: seq[Agent], wheel: seq[float]): Agent =
+    let r = random(wheel[^1])
+    let idx = min(wheel.lowerBound(r), POPULATION_SIZE-1)
+    deepCopy(result, pool[idx])
 
 method `>`(this: Agent, other: Agent): bool {.base.} =
     result = this.fitness > other.fitness

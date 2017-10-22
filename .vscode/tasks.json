@@ -4,14 +4,14 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "Build",
+            "taskName": "Debug",
             "type": "shell",
             "command": "nim",
             "args": [
                 "c",
                 "-r",
                 "--threads:on",
-                "main.nim"
+                "${file}"
             ],
             "options": {
                 "cwd": "${workspaceRoot}"
@@ -30,7 +30,7 @@
                 "-r",
                 "--threads:on",
                 "-d:release",
-                "main.nim"
+                "${file}"
             ],
             "options": {
                 "cwd": "${workspaceRoot}"
