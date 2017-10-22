@@ -10,6 +10,7 @@
             "args": [
                 "c",
                 "-r",
+                "--threads:on",
                 "main.nim"
             ],
             "options": {
@@ -27,6 +28,7 @@
             "args": [
                 "c",
                 "-r",
+                "--threads:on",
                 "-d:release",
                 "main.nim"
             ],
