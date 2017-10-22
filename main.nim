@@ -33,25 +33,25 @@ proc newAgent(): Agent =
     for i in 0..<TARGET.len:
         result.data[i] = random(NUM_CHARACTERS)
 
-method `>`(this: Agent, other: Agent): bool {.base.} =
+proc `>`(this: Agent, other: Agent): bool =
     result = this.fitness > other.fitness
 
-method print(this: Agent) {.base.} = 
+proc print(this: Agent) = 
     echo(sqrt(this.fitness), " -> ", $$this.data)
 
-method calcFitness(this: Agent) {.base.} =
+proc calcFitness(this: Agent) =
     this.fitness = 0.0
     for i in 0..<TARGET.len:
         if this.data[i] == TARGET[i]:
             this.fitness += 1.0
     this.fitness *= this.fitness
 
-method mutate(this: Agent) {.base.} =
+proc mutate(this: Agent) =
     for i in 0..<this.data.len:
         if random(1.0) < MUTATE_RATE:
             this.data[i] = random(NUM_CHARACTERS)
 
-method crossover(this: Agent, pool: seq[Agent], wheel: seq[float]) {.base.} =
+proc crossover(this: Agent, pool: seq[Agent], wheel: seq[float]) =
     let mate = pick(pool, wheel)
     for i in 0..<this.data.len:
         if random(1.0) < CROSSOVER_RATE:
