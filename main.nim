@@ -9,8 +9,8 @@ randomize()
 
 # Globals
 const N_THREADS = 4
-const N_GENERATIONS = 10000
-const POPULATION_SIZE = 10_000_000
+const POPULATION_SIZE = 100_000_000
+const N_GENERATIONS = 10
 const NUM_CHARACTERS = 1000
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
 const MUTATE_PROP = 0.10
@@ -83,42 +83,48 @@ proc newAgents(n: int): seq[Agent] =
     for i in 0..<n:
         result[i] = newAgent()
 
-{.experimental.}
-proc execute() =
-    echo getClockStr()
+{.experimental.}        
+proc newAgentsParallel(n: int): seq[Agent] =
+    if (POPULATION_SIZE mod N_THREADS != 0):
+        raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
 
+    echo getClockStr()
     # Initialize pool first time
     var flowPool = newSeq[FlowVar[seq[Agent]]](N_THREADS)
     parallel:
         for i in 0..<flowPool.len:
-            flowPool[i] = spawn newAgents((POPULATION_SIZE/8).toInt)
-
-    var pool = newSeq[Agent](POPULATION_SIZE)
+            flowPool[i] = spawn newAgents((POPULATION_SIZE/N_THREADS).toInt)
+    result = newSeq[Agent](POPULATION_SIZE)
+    var idx = 0
     for i in 0..<flowPool.len:
         var s: seq[Agent] = ^flowPool[i]
         for j in 0..<s.len:
-            pool[i] = s[j]
-            pool[i].calcFitness()
+            result[idx] = s[j]
+            result[idx].calcFitness()
+            idx += 1
         
     echo getClockStr()
-    echo "FNINSH TEST"
+    echo "parallelNewAgents finished"
 
-    # # Run generations
-    # for gen in 0..<N_GENERATIONS:
-    #     let wheel = createWheel(pool)
-    #     for i in 0..<POPULATION_SIZE:
-    #         if random(1.0) < CROSSOVER_PROP:
-    #             pool[i].crossover(pool, wheel)
-    #         if random(1.0) < MUTATE_PROP:
-    #             pool[i].mutate()
-    #         pool[i].calcFitness()
-    #     pool = createPool(pool, wheel)
+proc execute() =
+    
+    var pool = newAgentsParallel(POPULATION_SIZE)
+    # Run generations
+    for gen in 0..<N_GENERATIONS:
+        let wheel = createWheel(pool)
+        for i in 0..<POPULATION_SIZE:
+            if random(1.0) < CROSSOVER_PROP:
+                pool[i].crossover(pool, wheel)
+            if random(1.0) < MUTATE_PROP:
+                pool[i].mutate()
+            pool[i].calcFitness()
+        pool = createPool(pool, wheel)
 
-    #     if gen mod 100 == 0:
-    #         echo("Generation, ", gen, "/", N_GENERATIONS)
-    #         let best = maxAgent(pool)        
-    #         stdout.write("best: ")
-    #         best.print()
+        if gen mod 100 == 0:
+            echo("Generation, ", gen, "/", N_GENERATIONS)
+            let best = maxAgent(pool)        
+            stdout.write("best: ")
+            best.print()
     
     
             
