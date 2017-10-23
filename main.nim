@@ -8,8 +8,9 @@ import strutils, math, threadpool
 randomize()
 
 # Globals
+const N_THREADS = 4
 const N_GENERATIONS = 10000
-const POPULATION_SIZE = 1_000_000
+const POPULATION_SIZE = 10_000_000
 const NUM_CHARACTERS = 1000
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
 const MUTATE_PROP = 0.10
@@ -77,19 +78,27 @@ proc maxAgent(pool: seq[Agent]): Agent =
     for i in 1..<pool.len:
         if pool[i] > result: result = pool[i]
 
+proc newAgents(n: int): seq[Agent] =
+    result = newSeq[Agent](n)
+    for i in 0..<n:
+        result[i] = newAgent()
+
 {.experimental.}
 proc execute() =
     echo getClockStr()
 
     # Initialize pool first time
-    var flowPool = newSeq[FlowVar[Agent]](POPULATION_SIZE)
-    var pool = newSeq[Agent](POPULATION_SIZE)
+    var flowPool = newSeq[FlowVar[seq[Agent]]](N_THREADS)
     parallel:
         for i in 0..<flowPool.len:
-            flowPool[i] = spawn newAgent()
-    for i in 0..<POPULATION_SIZE:
-        pool[i] = ^flowPool[i]
-        pool[i].calcFitness()
+            flowPool[i] = spawn newAgents((POPULATION_SIZE/8).toInt)
+
+    var pool = newSeq[Agent](POPULATION_SIZE)
+    for i in 0..<flowPool.len:
+        var s: seq[Agent] = ^flowPool[i]
+        for j in 0..<s.len:
+            pool[i] = s[j]
+            pool[i].calcFitness()
         
     echo getClockStr()
     echo "FNINSH TEST"
