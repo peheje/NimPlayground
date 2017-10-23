@@ -93,6 +93,7 @@ proc newAgentsParallel(n: int): seq[Agent] =
         for i in 0..<flowPool.len:
             flowPool[i] = spawn newAgents(populationPrThread)
     result = newSeq[Agent](POPULATION_SIZE)
+    # check https://github.com/aboisvert/nimskiis/blob/master/tests/test_iteratorskiis.nim
     var idx = 0
     for i in 0..<flowPool.len:
         var s: seq[Agent] = ^flowPool[i]
@@ -133,7 +134,7 @@ proc execute() =
     # Run generations
     for gen in 0..<N_GENERATIONS:
         let wheel = createWheel(pool)
-        let partitions = partition(pool, N_THREADS)
+        let partitions: seq[seq[Agent]] = partition(pool, N_THREADS)
         parallel:
             for part in partitions:
                 echo "spawning"
