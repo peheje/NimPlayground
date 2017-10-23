@@ -2,12 +2,14 @@ import algorithm
 import random
 import math
 import marshal
+import times
+import strutils, math, threadpool
 
 randomize()
 
 # Globals
 const N_GENERATIONS = 10000
-const POPULATION_SIZE = 10000
+const POPULATION_SIZE = 1_000_000
 const NUM_CHARACTERS = 1000
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
 const MUTATE_PROP = 0.10
@@ -75,25 +77,40 @@ proc maxAgent(pool: seq[Agent]): Agent =
     for i in 1..<pool.len:
         if pool[i] > result: result = pool[i]
 
-# Initialize pool first time
-var pool = newSeq[Agent](POPULATION_SIZE)
-for i in 0..<POPULATION_SIZE:
-    pool[i] = newAgent()
-    pool[i].calcFitness()
+{.experimental.}
+proc execute() =
+    echo getClockStr()
 
-# Run generations
-for gen in 0..<N_GENERATIONS:
-    let wheel = createWheel(pool)
+    # Initialize pool first time
+    var flowPool = newSeq[FlowVar[Agent]](POPULATION_SIZE)
+    var pool = newSeq[Agent](POPULATION_SIZE)
+    parallel:
+        for i in 0..<flowPool.len:
+            flowPool[i] = spawn newAgent()
     for i in 0..<POPULATION_SIZE:
-        if random(1.0) < CROSSOVER_PROP:
-            pool[i].crossover(pool, wheel)
-        if random(1.0) < MUTATE_PROP:
-            pool[i].mutate()
+        pool[i] = ^flowPool[i]
         pool[i].calcFitness()
-    pool = createPool(pool, wheel)
+        
+    echo getClockStr()
+    echo "FNINSH TEST"
 
-    if gen mod 100 == 0:
-        echo("Generation, ", gen, "/", N_GENERATIONS)
-        let best = maxAgent(pool)        
-        stdout.write("best: ")
-        best.print()
+    # # Run generations
+    # for gen in 0..<N_GENERATIONS:
+    #     let wheel = createWheel(pool)
+    #     for i in 0..<POPULATION_SIZE:
+    #         if random(1.0) < CROSSOVER_PROP:
+    #             pool[i].crossover(pool, wheel)
+    #         if random(1.0) < MUTATE_PROP:
+    #             pool[i].mutate()
+    #         pool[i].calcFitness()
+    #     pool = createPool(pool, wheel)
+
+    #     if gen mod 100 == 0:
+    #         echo("Generation, ", gen, "/", N_GENERATIONS)
+    #         let best = maxAgent(pool)        
+    #         stdout.write("best: ")
+    #         best.print()
+    
+    
+            
+execute()
