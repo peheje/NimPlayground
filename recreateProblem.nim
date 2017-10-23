@@ -21,17 +21,23 @@ proc newAgent(): Agent =
     for i in 0..<TARGET.len:
         result.data[i] = random(NUM_CHARACTERS)
 
+method calcFitness(this: Agent) {.base.} =
+    this.fitness = 0.0
+    for i in 0..<TARGET.len:
+        if this.data[i] == TARGET[i]:
+            this.fitness += 1.0
+    this.fitness *= this.fitness
+
 proc main() =
     echo getClockStr()    
     
     var pool = newSeq[FlowVar[Agent]](POOLSIZE)
     parallel:
         for i in 0..<pool.len:
-            pool[i] = spawn newAgent()    
+            pool[i] = spawn newAgent()
     for i in 0..<pool.len:
-        var t = pool[i]
-        let f: float = (^t).fitness
-        echo f
+        let agent = (^pool[i])
+        echo agent.fitness
     
     echo getClockStr()        
 
