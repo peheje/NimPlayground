@@ -9,8 +9,8 @@ randomize()
 
 # Globals
 const N_THREADS = 4
-const POPULATION_SIZE = 100_000_000
-const N_GENERATIONS = 10
+const POPULATION_SIZE = 10_000_000
+const N_GENERATIONS = 1_000_000
 const NUM_CHARACTERS = 1000
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
 const MUTATE_PROP = 0.10
@@ -85,15 +85,13 @@ proc newAgents(n: int): seq[Agent] =
 
 {.experimental.}        
 proc newAgentsParallel(n: int): seq[Agent] =
-    if (POPULATION_SIZE mod N_THREADS != 0):
-        raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
-
     echo getClockStr()
     # Initialize pool first time
+    const populationPrThread = (POPULATION_SIZE/N_THREADS).toInt
     var flowPool = newSeq[FlowVar[seq[Agent]]](N_THREADS)
     parallel:
         for i in 0..<flowPool.len:
-            flowPool[i] = spawn newAgents((POPULATION_SIZE/N_THREADS).toInt)
+            flowPool[i] = spawn newAgents(populationPrThread)
     result = newSeq[Agent](POPULATION_SIZE)
     var idx = 0
     for i in 0..<flowPool.len:
@@ -106,20 +104,41 @@ proc newAgentsParallel(n: int): seq[Agent] =
     echo getClockStr()
     echo "parallelNewAgents finished"
 
+proc partition(pool: seq[Agent], n: int): seq[seq[Agent]] =
+    # Partition for parallel
+    const populationPrThread = (POPULATION_SIZE/N_THREADS).toInt    
+    var idx = 0
+    result = newSeq[seq[Agent]](N_THREADS)
+    for i in 0..<result.len:
+        result[i] = newSeq[Agent](populationPrThread)
+        for j in 0..<result[i].len:
+            result[i][j] = pool[idx]
+            idx += 1
+    # echo($$ result)
+
+proc life(part: ptr seq[Agent], pool: ptr seq[Agent], wheel: ptr seq[float]) =
+    for a in part:
+        if random(1.0) < CROSSOVER_PROP:
+            a.crossover(pool[], wheel[])
+            #a.crossover(pool, wheel)
+        if random(1.0) < MUTATE_PROP:
+            a.mutate()
+        a.calcFitness()
+
 proc execute() =
-    
+    if (POPULATION_SIZE mod N_THREADS != 0):
+        raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
+
     var pool = newAgentsParallel(POPULATION_SIZE)
     # Run generations
     for gen in 0..<N_GENERATIONS:
         let wheel = createWheel(pool)
-        for i in 0..<POPULATION_SIZE:
-            if random(1.0) < CROSSOVER_PROP:
-                pool[i].crossover(pool, wheel)
-            if random(1.0) < MUTATE_PROP:
-                pool[i].mutate()
-            pool[i].calcFitness()
+        let partitions = partition(pool, N_THREADS)
+        for part in partitions:
+            spawn life(cast[ptr seq[Agent]](part), cast[ptr seq[Agent]](pool), cast[ptr seq[float]](wheel))
+        sync()
         pool = createPool(pool, wheel)
-
+        
         if gen mod 100 == 0:
             echo("Generation, ", gen, "/", N_GENERATIONS)
             let best = maxAgent(pool)        
