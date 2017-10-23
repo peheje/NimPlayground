@@ -130,7 +130,7 @@ proc execute() =
     if (POPULATION_SIZE mod N_THREADS != 0):
         raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
 
-    var pool = newAgentsParallel(POPULATION_SIZE)
+    var pool: seq[Agent] = newAgentsParallel(POPULATION_SIZE)
     # Run generations
     for gen in 0..<N_GENERATIONS:
         let wheel = createWheel(pool)
