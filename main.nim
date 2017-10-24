@@ -9,7 +9,7 @@ randomize()
 
 # Globals
 const N_THREADS = 4
-const POPULATION_SIZE = 10_000_000
+const POPULATION_SIZE = 1000
 const N_GENERATIONS = 1000
 const NUM_CHARACTERS = 1000
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
