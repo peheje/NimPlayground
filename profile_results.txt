@@ -1,0 +1,9 @@
+total executions of each stack trace:
+Entry: 1/4 Calls: 2/5 = 40.00% [sum: 2; 2/5 = 40.00%]
+  random.nim: rotl 2/5 = 40.00%
+  random.nim: next 2/5 = 40.00%
+  random.nim: random 3/5 = 60.00%
+  main.nim: newAgent 4/5 = 80.00%
+  main.nim: newAgents 4/5 = 80.00%
+  main.nim: newAgentsWrapper 4/5 = 80.00%
+  threadpool.nim: slave 4/5 = 80.00%

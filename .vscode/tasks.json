@@ -23,6 +23,27 @@
             "problemMatcher": []
         },
         {
+            "taskName": "Profile",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "c",
+                "-r",
+                "--threads:on",
+                "--profiler:on",
+                "--stackTrace:on",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
             "taskName": "Release",
             "type": "shell",
             "command": "nim",

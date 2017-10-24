@@ -1,5 +1,7 @@
+# import nimprof
 import algorithm
 import random
+import sitmo
 import math
 import marshal
 import times
@@ -9,20 +11,33 @@ randomize()
 
 # Globals
 const N_THREADS = 4
-const POPULATION_SIZE = 1000
+const POPULATION_SIZE = 10_000
 const N_GENERATIONS = 1000
-const NUM_CHARACTERS = 1000
+const NUM_CHARACTERS = 10
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9]
 const MUTATE_PROP = 0.10
 const MUTATE_RATE = 0.05
 const CROSSOVER_PROP = 0.10
 const CROSSOVER_RATE = 0.05
 
+import sitmo
+var r = newsitmo()
+r.seed(0x7FFFFFFFu32)
+echo r.random
+r.skip(0xFFFFFFFFFFFFFFFFu64)
+echo r.random
+
 # Agent type
 type
     Agent* = ref object
         data*: seq[int]
         fitness*: float
+    Partition = ref object
+        part*: seq[Agent]
+        pool*: seq[Agent]
+        wheel*: seq[float]
+
+var partitionChan: Channel[Partition]
 
 proc newAgent(): Agent =
     result = Agent()
@@ -117,16 +132,23 @@ proc partition(pool: seq[Agent], n: int): seq[seq[Agent]] =
             idx += 1
     # echo($$ result)
 
-proc life(part: seq[Agent], pool: seq[Agent], wheel: seq[float]) =
+proc life() =
+    let p: Partition = partitionChan.recv()
+    var 
+        part = p.part
+        pool = p.pool
+        wheel = p.wheel
     for a in part:
         if random(1.0) < CROSSOVER_PROP:
             a.crossover(pool, wheel)
         if random(1.0) < MUTATE_PROP:
             a.mutate()
         a.calcFitness()
-    echo "life done"
+    # echo "life done"
 
 proc execute() =
+    open(partitionChan)
+
     if (POPULATION_SIZE mod N_THREADS != 0):
         raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
 
@@ -135,16 +157,19 @@ proc execute() =
     for gen in 0..<N_GENERATIONS:
         let wheel = createWheel(pool)
         let partitions: seq[seq[Agent]] = partition(pool, N_THREADS)
-        parallel:
-            for part in partitions:
-                echo "spawning"
-                spawn life(part, pool, wheel)
+        for i in 0..<partitions.len:
+            var p = Partition(part: partitions[i], pool: pool, wheel: wheel)
+            partitionChan.send(p)
+        for i in 0..<partitions.len:
+            spawn life()
+        sync()
         pool = createPool(pool, wheel)
         
-        echo("Generation, ", gen, "/", N_GENERATIONS)
-        let best = maxAgent(pool)        
-        stdout.write("best: ")
-        best.print()
+        if gen mod 100 == 0:
+            echo("Generation, ", gen, "/", N_GENERATIONS)
+            let best = maxAgent(pool)        
+            stdout.write("best: ")
+            best.print()
     
     
             
