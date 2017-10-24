@@ -10,7 +10,7 @@ import strutils, math, threadpool
 randomize()
 
 # Globals
-const N_THREADS = 4
+const N_THREADS = 1
 const POPULATION_SIZE = 10_000
 const N_GENERATIONS = 1000
 const NUM_CHARACTERS = 10
@@ -32,12 +32,6 @@ type
     Agent* = ref object
         data*: seq[int]
         fitness*: float
-    Partition = ref object
-        part*: seq[Agent]
-        pool*: seq[Agent]
-        wheel*: seq[float]
-
-var partitionChan: Channel[Partition]
 
 proc newAgent(): Agent =
     result = Agent()
@@ -132,12 +126,7 @@ proc partition(pool: seq[Agent], n: int): seq[seq[Agent]] =
             idx += 1
     # echo($$ result)
 
-proc life() =
-    let p: Partition = partitionChan.recv()
-    var 
-        part = p.part
-        pool = p.pool
-        wheel = p.wheel
+proc life(part: seq[Agent], pool: seq[Agent], wheel: seq[float]) =
     for a in part:
         if random(1.0) < CROSSOVER_PROP:
             a.crossover(pool, wheel)
@@ -147,8 +136,6 @@ proc life() =
     # echo "life done"
 
 proc execute() =
-    open(partitionChan)
-
     if (POPULATION_SIZE mod N_THREADS != 0):
         raise newException(ValueError, "POPULATION_SIZE must be divisable with N_THREADS")
 
@@ -157,12 +144,8 @@ proc execute() =
     for gen in 0..<N_GENERATIONS:
         let wheel = createWheel(pool)
         let partitions: seq[seq[Agent]] = partition(pool, N_THREADS)
-        for i in 0..<partitions.len:
-            var p = Partition(part: partitions[i], pool: pool, wheel: wheel)
-            partitionChan.send(p)
-        for i in 0..<partitions.len:
-            spawn life()
-        sync()
+        for part in partitions:
+            life(part, pool, wheel)
         pool = createPool(pool, wheel)
         
         if gen mod 100 == 0:
