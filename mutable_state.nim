@@ -46,14 +46,14 @@ var threads: array[0..N_THREADS-1, Thread[seq[Agent]]]
 randomize()
 
 proc mutate(chunk: seq[Agent]) {.thread.} =
-    acquire(lock)
+    # acquire(lock)
     echo "before mutate", $$(chunk)
     for agent in chunk:
         for i in 0..<agent.data.len:
             if random(1.0) < MUTATE_RATE:
                 agent.data[i] = random(NUM_CHARACTERS)
     echo "after  mutate", $$(chunk)
-    release(lock)
+    # release(lock)
 
 echo $$(pool)
 
