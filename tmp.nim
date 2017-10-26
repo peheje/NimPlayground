@@ -1,17 +1,13 @@
-import random, math, times
+import bignum
 
-proc strcmp(a, b: cstring): cint {.importc: "strcmp", nodecl.}
-echo strcmp("abc", "def")
-echo strcmp("hello", "hello")
- 
-proc printf(formatstr: cstring) {.header: "<stdio.h>", varargs.}
- 
-var x = "foo"
-printf("Hello %d %s!\n", 12, x)
 
-proc time(p: ptr void) {.header: "<time.h>", varargs.}
-proc srand(i: cint) {.header: "<stdlib.h>", varargs.}
-proc rand(): cint {.importc: "rand", nodecl.}
-echo epochTime()
-srand(time(nil))
-echo (rand().toFloat / pow(2.0, 32.0))
+proc a(m, n: Int): Int =
+    if m == 0:
+        result = n + 1
+    elif m > 0 and n == 0:
+        result = a(m - 1, newInt(1))
+    elif m > 0 and n > 0:
+        result = a(m - 1, a(m, n - 1))
+
+var i = a(newInt(3), newInt(3))
+echo i
