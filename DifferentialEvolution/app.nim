@@ -1,7 +1,7 @@
 import math
 import random
 
-randomize()
+# randomize()
 
 # Optimization problems
 proc booth(x: seq[float]): float =
@@ -13,11 +13,12 @@ proc booth(x: seq[float]): float =
 # Constants
 const generations = 100
 const popsize = 100
-const params = 2
 const params_range = -5.0..5.0
 const dither_range = 0.5..1.0
 const mutate = 0.5
 const print = 50
+const optimizer = booth
+const params = 2
 
 var crossover = 0.5
 var scores = newSeq[float](popsize)
@@ -34,7 +35,7 @@ for i in 0..<popsize:
 
 # Initial scores
 for i in 0..<popsize:
-    scores[i] = booth(pop[i])
+    scores[i] = optimizer(pop[i])
 
 # For each generation
 for g in 0..<generations:
@@ -67,7 +68,7 @@ for g in 0..<generations:
                 trial[j] = xt[j]
         
         # Greedy pick best
-        let score_trial = booth(trial)
+        let score_trial = optimizer(trial)
         let score_target = scores[i]
 
         if score_trial < score_target:
