@@ -3,6 +3,14 @@ import random
 
 # randomize()
 
+# Helpers
+proc min_index(x: seq[float]): int =
+    var smallest = float.high
+    for i in 0..<x.len:
+        if x[i] < smallest:
+            smallest = x[i]
+            result = i
+
 # Optimization problems
 proc booth(x: seq[float]): float =
     # (1.0, 3.0) = 0
@@ -11,12 +19,12 @@ proc booth(x: seq[float]): float =
     return t1 + t2    
 
 # Constants
+const print = 10
 const generations = 100
 const popsize = 100
 const params_range = -5.0..5.0
 const dither_range = 0.5..1.0
 const mutate = 0.5
-const print = 50
 const optimizer = booth
 const params = 2
 
@@ -77,8 +85,8 @@ for g in 0..<generations:
             scores[i] = score_trial
         
     if g mod print == 0:
-        let minimum = min(scores)
-        let best_idx = scores.find(minimum)
+        let mean = scores.sum() / scores.len().toFloat
+        echo "generation mean ", mean
+    if g == generations-1:
+        let best_idx = scores.min_index()
         echo "best ", pop[best_idx]
-
-            
