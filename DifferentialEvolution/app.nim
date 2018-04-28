@@ -1,5 +1,6 @@
 import math
 import random
+# import nimprof
 
 # randomize()
 
@@ -19,16 +20,16 @@ proc booth(x: seq[float]): float =
     return t1 + t2    
 
 # Constants
-const print = 10
-const generations = 100
-const popsize = 100
-const params_range = -5.0..5.0
+const print = 1000
+const generations = 10000
+const popsize = 10
+const params_range = -100.0..100.0
 const dither_range = 0.5..1.0
 const mutate = 0.5
 const optimizer = booth
 const params = 2
 
-var crossover = 0.5
+var crossover = 0.9
 var scores = newSeq[float](popsize)
 var others = newSeq[int](3)
 var donor = newSeq[float](params)
@@ -40,9 +41,6 @@ for i in 0..<popsize:
     pop[i] = newSeq[float](params)
     for j in 0..<params:
         pop[i][j] = rand(params_range)
-
-# Initial scores
-for i in 0..<popsize:
     scores[i] = optimizer(pop[i])
 
 # For each generation
