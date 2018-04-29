@@ -1,29 +1,17 @@
 import math
-# import random
 # import nimprof
 
 # randomize()
 
-# Constants
-const params = 2
-const print = 10000
-const generations = 100000
-const popsize = 100
-const mutate = 0.5
-const bound_from = 0.0
-const bound_to = 100.0
-
 # Optimization problems
-proc booth(x: array[params, float]): float =
+proc booth(x: openarray[float]): float =
     # (1.0, 3.0) = 0
     let t1 = pow(x[0] + 2*x[1] - 7.0, 2.0)
     let t2 = pow(2*x[0] + x[1] - 5.0, 2.0)
     return t1 + t2  
-    
-const optimizer = booth
 
 # Helpers
-proc min_index(x: array[popsize, float]): int =
+proc min_index(x: openarray[float]): int =
     var smallest = float.high
     for i in 0..<x.len:
         if x[i] < smallest:
@@ -46,19 +34,29 @@ proc xor128(): uint32 =
     w = w xor (w shr 19) xor t xor (t shr 8)
     return w
 
+# A biased random
 proc f_rand(min, max: float): float =
-    # A biased random!
     let r = float(xor128())
     # pow(2, 32) - 1 == 4294967295
     let rr = r / 4294967295.0
     let rrr = rr * (max - min) + min
     return rrr
 
+# A biased random
 proc i_rand(min, max: uint32): int =
-    # A biased random
     result = int((xor128() + min) mod max)
 
 proc main() =
+    # Constants
+    const params = 2
+    const print = 10000
+    const generations = 100000
+    const popsize = 100
+    const mutate = 0.5
+    const bound_from = 0.0
+    const bound_to = 100.0
+    const optimizer = booth
+
     var crossover = 0.9
     var scores: array[popsize, float]
     var others: array[3, int]
