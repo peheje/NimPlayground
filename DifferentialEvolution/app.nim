@@ -41,6 +41,18 @@ proc f2(x: openarray[float]): float =
         p *= x[i]
     return abs(s) + abs(p)
 
+# In League of Legends, a player's Effective Health when defending against physical damage is given by E=H(100+A)100, where H is health and A is armor. Health costs 2.5 gold per unit, and Armor costs 18 gold per unit. You have 3600 gold, and you need to optimize the effectiveness E of your health and armor to survive as long as possible against the enemy team's attacks. How much of each should you buy?  
+# You do not spend equal money on A and H: E=3H−1720H2 so the maximum is at H=1080, plug back in for A=50.
+proc lol1(x: openarray[float]): float =
+    let
+        health = x[0]
+        armor = x[1]
+        effective_hp = (health*(100.0+armor))/100.0
+    if (health*2.5 + armor*18) > 3600:
+        return 1.0
+    return 1.0/effective_hp
+
+
 # Helpers
 proc min_index(x: openarray[float]): int =
     var smallest = float.high
@@ -48,6 +60,11 @@ proc min_index(x: openarray[float]): int =
         if x[i] < smallest:
             smallest = x[i]
             result = i
+
+proc limit_bounds(x: var openarray[float], bound_from, bound_to: float) =
+    for i in 0..<len(x):
+        if x[i] < bound_from: x[i] = bound_from
+        elif x[i] > bound_to: x[i] = bound_to
 
 # Biased fast random
 var
@@ -79,14 +96,15 @@ proc i_rand(min, max: uint32): int =
 
 proc main() =
     # Constants
-    const optimizer = f2
-    const params = 10
-    const print = 10000
+    const optimizer = lol1
+    const params = 2
+    const bound_from = 0
+    const bound_to = 10000
+    
+    const print = 1000
     const generations = 100000
     const popsize = 500
     const mutate = 0.5
-    const bound_from = -100
-    const bound_to = 100.0
     const dither_from = 0.5
     const dither_to = 1.0
 
@@ -126,7 +144,7 @@ proc main() =
             for j in 0..<params:
                 donor[j] = x0[j] + (x1[j] - x2[j]) * mutate
             
-            # Todo: EnsureBounds
+            limit_bounds(donor, bound_from, bound_to)
 
             # Create trial
             for j in 0..<params:
@@ -148,6 +166,8 @@ proc main() =
             let mean = scores.sum() / scores_len
             echo "generation mean ", mean
             echo "generation ", g
+            let best_idx = scores.min_index()
+            echo "best ", pop[best_idx]
         
     let best_idx = scores.min_index()
     echo "best ", pop[best_idx]
