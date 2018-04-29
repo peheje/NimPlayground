@@ -5,15 +5,46 @@ import math
 
 # Optimization problems
 proc booth(x: openarray[float]): float =
-    # (1.0, 3.0) = 0
+    # f(1.0,3.0)=0
     let t1 = pow(x[0] + 2*x[1] - 7.0, 2.0)
     let t2 = pow(2*x[0] + x[1] - 5.0, 2.0)
-    return t1 + t2  
+    return t1 + t2
+
+proc beale(x: openarray[float]): float =
+    # f(3,0.5)=0
+    let
+        term1 = pow(1.500 - x[0] + x[0]*x[1], 2.0)
+        term2 = pow(2.250 - x[0] + x[0]*x[1]*x[1], 2.0)
+        term3 = pow(2.625 - x[0] + x[0]*x[1]*x[1]*x[1], 2.0)
+    return term1 + term2 + term3
+
+proc matyas(x: openarray[float]): float =
+    # f(0,0)=0
+    let
+        t1 = 0.26*(x[0]*x[0] + x[1]*x[1])
+        t2 = 0.48*x[0]*x[1]
+    return t1 - t2
+
+proc f1(x: openarray[float]): float =
+    # f(0) = 0
+    var s = 0.0
+    for i in 0..<len(x):
+        s += x[i]*x[i]
+    return abs(s)
+
+proc f2(x: openarray[float]): float =
+    var
+        s = 0.0
+        p = 1.0
+    for i in 0..<len(x):
+        s += abs(x[i])
+        p *= x[i]
+    return abs(s) + abs(p)
 
 # Helpers
 proc min_index(x: openarray[float]): int =
     var smallest = float.high
-    for i in 0..<x.len:
+    for i in 0..<len(x):
         if x[i] < smallest:
             smallest = x[i]
             result = i
@@ -48,13 +79,13 @@ proc i_rand(min, max: uint32): int =
 
 proc main() =
     # Constants
-    const params = 2
-    const optimizer = booth
+    const optimizer = f2
+    const params = 10
     const print = 10000
     const generations = 100000
-    const popsize = 100
+    const popsize = 500
     const mutate = 0.5
-    const bound_from = 0.0
+    const bound_from = -100
     const bound_to = 100.0
     const dither_from = 0.5
     const dither_to = 1.0
@@ -65,7 +96,7 @@ proc main() =
     var donor: array[params, float]
     var trial: array[params, float]
 
-    let scores_len = scores.len().toFloat
+    let scores_len = len(scores).toFloat
 
     # Init population
     var pop: array[popsize, array[params, float]]
