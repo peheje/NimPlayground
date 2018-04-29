@@ -58,6 +58,23 @@
                 "cwd": "${workspaceRoot}"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "ReleaseClang",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "--cc:clang",
+                "-d:release",
+                "--clang.options.speed=-Ofast -flto -fno-strict-aliasing -ffast-math",
+                "--clang.options.linker=-flto",
+                "c",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
         }
     ]
 }
