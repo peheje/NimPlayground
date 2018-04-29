@@ -49,13 +49,15 @@ proc i_rand(min, max: uint32): int =
 proc main() =
     # Constants
     const params = 2
+    const optimizer = booth
     const print = 10000
     const generations = 100000
     const popsize = 100
     const mutate = 0.5
     const bound_from = 0.0
     const bound_to = 100.0
-    const optimizer = booth
+    const dither_from = 0.5
+    const dither_to = 1.0
 
     var crossover = 0.9
     var scores: array[popsize, float]
@@ -72,7 +74,7 @@ proc main() =
 
     # For each generation
     for g in 0..<generations:
-        crossover = f_rand(0.5, 1.0)
+        crossover = f_rand(dither_from, dither_to)
         
         for i in 0..<popsize:
             # Get three others
