@@ -65,6 +65,8 @@ proc main() =
     var donor: array[params, float]
     var trial: array[params, float]
 
+    let scores_len = scores.len().toFloat
+
     # Init population
     var pop: array[popsize, array[params, float]]
     for i in 0..<popsize:
@@ -112,11 +114,11 @@ proc main() =
                 scores[i] = score_trial
             
         if g mod print == 0:
-            let mean = scores.sum() / scores.len().toFloat
+            let mean = scores.sum() / scores_len
             echo "generation mean ", mean
             echo "generation ", g
-        if g == generations-1:
-            let best_idx = scores.min_index()
-            echo "best ", pop[best_idx]
+        
+    let best_idx = scores.min_index()
+    echo "best ", pop[best_idx]
 
 main()
