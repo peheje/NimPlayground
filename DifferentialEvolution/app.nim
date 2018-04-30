@@ -1,4 +1,5 @@
 import math
+import random
 # import nimprof
 
 # randomize()
@@ -92,33 +93,19 @@ proc limit_bounds(x: var openarray[float], bound_from, bound_to: float) =
         if x[i] < bound_from: x[i] = bound_from
         elif x[i] > bound_to: x[i] = bound_to
 
-# Biased fast random
-var
-    x: uint32 = 123456789
-    y: uint32 = 362436069
-    z: uint32 = 521288629
-    w: uint32 = 88675123
-    
-proc xor128(): uint32 = 
-    var t: uint32
-    t = x xor (x shl 11)
-    x = y
-    y = z
-    z = w
-    w = w xor (w shr 19) xor t xor (t shr 8)
-    return w
+var state = initRand(100)
 
 # A biased random
 proc f_rand(min, max: float): float =
-    let r = float(xor128())
-    # pow(2, 32) - 1 == 4294967295
-    let rr = r / 4294967295.0
+    let r = float(next(state))
+    # pow(2, 64) = 1.844674407E19
+    let rr = r / 1.844674407E19
     let rrr = rr * (max - min) + min
     return rrr
 
 # A biased random
-proc i_rand(min, max: uint32): int =
-    result = int((xor128() + min) mod max)
+proc i_rand(min, max: uint64): int =
+    result = int((next(state) + min) mod max)
 
 proc main() =
     # Constants
