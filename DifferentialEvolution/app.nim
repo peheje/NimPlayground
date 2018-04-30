@@ -109,14 +109,14 @@ proc i_rand(min, max: uint64): int =
 
 proc main() =
     # Constants
-    const optimizer = lol1
-    const params = 2
-    const bound_from = 0
-    const bound_to = 10000
+    const optimizer = f1
+    const params = 1000
+    const bound_from = -100
+    const bound_to = 100
     
     const print = 1000
     const generations = 10000
-    const popsize = 500
+    const popsize = 200
     const mutate = 0.5
     const dither_from = 0.5
     const dither_to = 1.0
@@ -179,8 +179,6 @@ proc main() =
             let mean = scores.sum() / scores_len
             echo "generation mean ", mean
             echo "generation ", g
-            let best_idx = scores.min_index()
-            echo "best ", pop[best_idx]
         
     let best_idx = scores.min_index()
     echo "best ", pop[best_idx]
