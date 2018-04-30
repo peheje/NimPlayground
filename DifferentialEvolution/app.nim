@@ -52,6 +52,32 @@ proc lol1(x: openarray[float]): float =
         return 1.0
     return 1.0/effective_hp
 
+# Ten minutes into the game, you have 1080 health and 10 armor. You have only 720 gold to spend, and again Health costs 2.5 gold per unit while Armor costs 18 gold per unit. Again the goal is to maximize the effectiveness E. Notice that you don't want to maximize the effectiveness of what you purchase -- you want to maximize the effectiveness E of your resulting health and armor. How much of each should you buy?   
+# One way to do this is to realize from number 1 that we know an optimal configuration is H=1080 and A=50, so right now we have way too much health and not enough armor. The answer to this is that we should spend all the money on 40 armor, to get exactly back to the optimized answer to #1.
+proc lol2(x: openarray[float]): float =
+    let
+        health = x[0]
+        armor = x[1]
+        current_health = health + 1080
+        current_armor = armor + 10
+        effective_health = (current_health*(100.0 + current_armor))/100
+    if (health*2.5 + armor*18) > 720:
+        return 1.0
+    return 1.0/effective_health
+
+# Thirty minutes into the game, you have 2000 health and 50 armor. You have 1800 gold to spend, and again Health costs approximately 2.5 gold per unit while Armor costs approximately 18 gold per unit. Again the goal is to maximize the effectiveness E of your resulting health and armor. How much of each should you buy?
+    
+# If H and A are the amount they plan to buy, the effectiveness is E=(H+2000)(100+(50+A))100 since they started with 2000 and 50 respectively. The critical point appears at H = -100, so the maximum actually occurs at one of the endpoints, not at the critical point at all. Again the player should spend all the money on armor.
+proc lol3(x: openarray[float]): float =
+    let
+        health = x[0]
+        armor = x[1]
+        current_health = health + 2000
+        current_armor = armor + 50
+        effective_health = (current_health*(100.0 + current_armor))/100.0
+    if (health*2.5 + armor*18) > 1800:
+        return 1.0
+    return 1.0/effective_health
 
 # Helpers
 proc min_index(x: openarray[float]): int =
@@ -96,7 +122,7 @@ proc i_rand(min, max: uint32): int =
 
 proc main() =
     # Constants
-    const optimizer = lol1
+    const optimizer = lol3
     const params = 2
     const bound_from = 0
     const bound_to = 10000
