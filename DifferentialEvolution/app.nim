@@ -42,7 +42,7 @@ proc f2(x: openarray[float]): float =
         p *= x[i]
     return abs(s) + abs(p)
 
-# In League of Legends, a player's Effective Health when defending against physical damage is given by E=H(100+A)100, where H is health and A is armor. Health costs 2.5 gold per unit, and Armor costs 18 gold per unit. You have 3600 gold, and you need to optimize the effectiveness E of your health and armor to survive as long as possible against the enemy team's attacks. How much of each should you buy?  
+# In League of Legends, a player's Effective Health when defending against physical damage is given by E=H(100+A)/100, where H is health and A is armor. Health costs 2.5 gold per unit, and Armor costs 18 gold per unit. You have 3600 gold, and you need to optimize the effectiveness E of your health and armor to survive as long as possible against the enemy team's attacks. How much of each should you buy?  
 # You do not spend equal money on A and H: E=3H−1720H2 so the maximum is at H=1080, plug back in for A=50.
 proc lol1(x: openarray[float]): float =
     let
@@ -80,6 +80,23 @@ proc lol3(x: openarray[float]): float =
         return 1.0
     return 1.0/effective_health
 
+proc find_sqrt(x: openarray[float]): float =
+    # sqrt(2): x*x == 2 => x*x-2 = 0
+    let
+        c = x[0]
+        t = c*c - 2
+    return abs(t)
+
+# There is 36 heads and 100 legs, how many horses and jockeys are there?
+# 14 and 22
+proc horses_and_jockeys(x: openarray[float]): float =
+    let
+        horses = x[0]
+        jockeys = x[1]
+        legs = horses*4 + jockeys*2
+        heads = horses + jockeys
+    result = abs(36-heads) + abs(100-legs)
+    
 # Helpers
 proc min_index(x: openarray[float]): int =
     var smallest = float.high
@@ -109,13 +126,13 @@ proc i_rand(min, max: uint64): int =
 
 proc main() =
     # Constants
-    const optimizer = f1
-    const params = 1000
-    const bound_from = -100
-    const bound_to = 100
-    
+    const optimizer = horses_and_jockeys
+    const params = 2
+    const bound_from = 0
+    const bound_to = 1000
+
     const print = 1000
-    const generations = 10000
+    const generations = 1000
     const popsize = 200
     const mutate = 0.5
     const dither_from = 0.5
