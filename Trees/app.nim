@@ -1,8 +1,9 @@
 import random
 import marshal
 import math
+import json
 
-const n_nodes = int(pow(2.0, 16.0))
+const n_nodes = int(pow(2.0, 6.0))
 const n_columns = 3
 const n_categories = 3
 
@@ -25,7 +26,9 @@ proc newNode(index: int): Node =
     result.threshold = rand(-100.0..100.0)
     result.index = index
     if result.isLeaf():
-        result.prediction = rand(n_categories)
+        let category = rand(n_categories)
+        echo "node is leaf with category " & $category
+        result.prediction = rand(category)
         
 type
     Tree = ref object
@@ -45,28 +48,35 @@ proc right_idx(i: int): int =
 proc parent_idx(i: int): int =
     result = i div 2;
 
-proc predict(t: Tree, data: openarray[Row]): int =
-    var tree_idx = 1
-    for row in data:
-        let node = t.data[tree_idx]
-        if node.isLeaf():
-            return node.prediction
-        if row[node.column] < node.threshold:
-            tree_idx = left_idx(tree_idx)
-        else:
-            tree_idx = right_idx(tree_idx)
+proc predict(t: Tree, row: Row, tree_idx: int = 1): int =
+    let node = t.data[tree_idx]
+    if node.isLeaf():
+        echo "was leaf: " & $$node & " node.prediction = " & $node.prediction
+        return node.prediction
+    if row[node.column] < node.threshold:
+        echo $row[node.column] & "<" & $node.threshold
+        let _ = t.predict(row, left_idx(tree_idx))
+    else:
+        echo $row[node.column] & ">" & $node.threshold
+        let _ = t.predict(row, right_idx(tree_idx))
+
+proc pretty_print(o: any) =
+    let s = $$o
+    let json = parseJson(s)
+    echo json.pretty
 
 proc main() =
     let t = newTree()
-    echo $$t.data
+    # echo $$t.data
 
-    var training = newSeq[array[n_columns, float]]()
-    for i in 0..<100:
-        var column = array[n_columns, float]()
-        for j in 0..n_columns:
+    var training = newSeq[Row]()
+    for i in 0..<10:
+        let row: Row = [rand(-100.0..100.0), rand(-100.0..100.0), rand(-100.0..100.0)]
+        training.add(row)
 
-    
-        training.add()
+    pretty_print(training)
+    let res = t.predict(training[1])    # should not always be 0
+    echo res
 
-    
+
 main()
