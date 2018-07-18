@@ -1,0 +1,81 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "c",
+                "-r",
+                "--threads:on",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Profile",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "c",
+                "-r",
+                "--threads:on",
+                "--profiler:on",
+                "--stackTrace:on",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Release",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "c",
+                "-r",
+                "--threads:on",
+                "-d:release",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "ReleaseClang",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "--cc:clang",
+                "-d:release",
+                "--clang.options.speed=-Ofast -flto -fno-strict-aliasing -ffast-math",
+                "--clang.options.linker=-flto",
+                "c",
+                "-r",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

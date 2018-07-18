@@ -96,6 +96,21 @@ proc horses_and_jockeys(x: openarray[float]): float =
         legs = horses*4 + jockeys*2
         heads = horses + jockeys
     result = abs(36-heads) + abs(100-legs)
+
+proc lin_reg(c: openArray[float]): float =
+    const xs = [0.0, 10.0, 30.0, 70.0, 90.0, 110.0]
+    const ys = [100.0, 142.0, 190.0, 225.0, 280.0, 300.0]
+
+    # y = ax + b
+    let a = c[0]
+    let b = c[1]
+    
+    result = 0.0
+    for i in 0..<len(xs):
+        let x = xs[i]
+        let y = ys[i]
+        let err = y - (a*x + b)
+        result += abs(err*err)
     
 # Helpers
 proc min_index(x: openarray[float]): int =
@@ -126,13 +141,13 @@ proc i_rand(min, max: uint64): int =
 
 proc main() =
     # Constants
-    const optimizer = horses_and_jockeys
+    const optimizer = lin_reg
     const params = 2
     const bound_from = 0
-    const bound_to = 1000
+    const bound_to = 130
 
-    const print = 1000
-    const generations = 1000
+    const print = 100
+    const generations = 10000
     const popsize = 200
     const mutate = 0.5
     const dither_from = 0.5
