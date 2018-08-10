@@ -2,6 +2,7 @@ import random
 import marshal
 import math
 import json
+import bignum
 
 const n_nodes = int(pow(2.0, 6.0))
 const n_columns = 3
@@ -18,7 +19,7 @@ type
         prediction: int
         
 proc isLeaf(n: Node): bool =
-    return n.index*2 + 1 > n_nodes
+    return n.index*2 + 1 >= n_nodes
 
 proc newNode(index: int): Node =
     result = Node()
@@ -26,9 +27,9 @@ proc newNode(index: int): Node =
     result.threshold = rand(-100.0..100.0)
     result.index = index
     if result.isLeaf():
-        let category = rand(n_categories)
-        echo "node is leaf with category " & $category
-        result.prediction = rand(category)
+        let prediction = rand(n_categories)
+        echo "node is leaf with category " & $prediction
+        result.prediction = prediction
         
 type
     Tree = ref object
@@ -65,7 +66,26 @@ proc pretty_print(o: any) =
     let json = parseJson(s)
     echo json.pretty
 
+proc fib(n: Rat): Rat =
+    var
+        i = newRat(0)
+        t = newRat(0)
+        a = newRat(0)
+        b = newRat(1)
+    while i < n:
+        t = a + b
+        a = b
+        b = t
+        i += 1
+    return a
+
 proc main() =
+    # let limit = newRat(1402)
+    let limit = newRat(10 ^ 7)
+    # let limit = newRat(10) # 55
+    echo fib(limit)
+
+proc main1() =
     let t = newTree()
     # echo $$t.data
 
@@ -77,6 +97,5 @@ proc main() =
     pretty_print(training)
     let res = t.predict(training[1])    # should not always be 0
     echo res
-
 
 main()
