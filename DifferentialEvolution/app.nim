@@ -1,5 +1,5 @@
 # should compile with -flto enabled e.g., -d:release is not enough
-# nim --cc:gcc --gcc.options.speed='-Ofast' --gcc.options.linker='-flto' c -d:release -r "path"
+# nim c -r -d:release -l:-flto <path>
 
 import math
 import random
