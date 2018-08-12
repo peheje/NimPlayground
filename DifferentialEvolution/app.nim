@@ -54,7 +54,7 @@ proc main() =
             # Get three others
             for j in 0..<3:
                 var idx = i_rand(0, popsize)
-                while idx == i:
+                while idx == i or idx in others:
                     idx = i_rand(0, popsize)
                 others[j] = idx
             
