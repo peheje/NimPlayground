@@ -60,6 +60,24 @@
             "problemMatcher": []
         },
         {
+            "label": "ReleaseGcc",
+            "type": "shell",
+            "command": "nim",
+            "args": [
+                "--cc:gcc",
+                "-d:release",
+                "--gcc.options.speed=-Ofast",
+                "--gcc.options.linker=-flto",
+                "c",
+                "-r",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "ReleaseClang",
             "type": "shell",
             "command": "nim",

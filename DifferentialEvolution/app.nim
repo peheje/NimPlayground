@@ -1,3 +1,6 @@
+# should compile with -flto enabled e.g., -d:release is not enough
+# nim --cc:gcc --gcc.options.speed='-Ofast' --gcc.options.linker='-flto' c -d:release -r "path"
+
 import math
 import random
 import problems
@@ -19,14 +22,14 @@ proc limit_bounds(x: var openarray[float], bound_from, bound_to: float) =
 
 proc main() =
     # Constants
-    const optimizer = find_sqrt
-    const params = 1
-    const bound_from = 0
-    const bound_to = 10
+    const optimizer = f1
+    const params = 1000
+    const bound_from = -100
+    const bound_to = 100
 
-    const print = 100
-    const generations = 100
-    const popsize = 100
+    const print = 500
+    const generations = 10000
+    const popsize = 200
     const mutate = 0.5
     const dither_from = 0.5
     const dither_to = 1.0
@@ -54,7 +57,7 @@ proc main() =
             # Get three others
             for j in 0..<3:
                 var idx = i_rand(0, popsize)
-                while idx == i or idx in others:
+                while idx == i:
                     idx = i_rand(0, popsize)
                 others[j] = idx
             
