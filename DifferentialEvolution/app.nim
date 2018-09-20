@@ -22,10 +22,10 @@ proc limit_bounds(x: var openarray[float], bound_from, bound_to: float) =
 
 proc main() =
     # Constants
-    const optimizer = f1
-    const params = 1000
-    const bound_from = -100
-    const bound_to = 100
+    const optimizer = constraints1
+    const params = 2
+    const bound_from = -1000
+    const bound_to = 1000
 
     const print = 500
     const generations = 10000
