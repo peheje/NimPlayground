@@ -6,7 +6,7 @@ proc constraints1*(c: openarray[float]): float =
     let y = c[1]
     let f1 = (2*x + 3*y)*(x-y) - 2
     let f2 = 3*x + y - 5
-    result = abs(f1) + abs(pow(f2, 2.0))
+    result = pow(f1, 2.0) + pow(f2, 2.0)
 
 proc booth*(x: openarray[float]): float =
     # f(1.0,3.0)=0

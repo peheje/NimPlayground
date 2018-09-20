@@ -28,7 +28,7 @@ proc main() =
     const bound_to = 1000
 
     const print = 500
-    const generations = 10000
+    const generations = 100
     const popsize = 200
     const mutate = 0.5
     const dither_from = 0.5
