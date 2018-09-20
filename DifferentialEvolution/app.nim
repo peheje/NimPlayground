@@ -2,7 +2,6 @@
 # nim c -r -d:release -l:-flto <path>
 
 import math
-import random
 import problems
 import fastrandom
 # import nimprof
