@@ -6,18 +6,27 @@ import random
 import problems
 import fastrandom
 import helpers
+import streams
 # import nimprof
 
 proc main() =
-    # Constants
-    const optimizer = constraints1
-    const params = 2
-    const bound_from = -1000
-    const bound_to = 1000
 
-    const print = 500
-    const generations = 100
-    const popsize = 200
+    # Open file for writing
+    let file = newFileStream("/Users/phj/Desktop/nim_write.txt", FileMode.fmWrite)
+    if file != nil:
+        file.writeLine("step,mean")
+    else:
+        quit("could not open file", 100)
+
+    # Constants
+    const optimizer = f1
+    const params = 1000
+    const bound_from = -10
+    const bound_to = 10
+
+    const print = 200
+    const generations = 20000
+    const popsize = 100
     const mutate = 0.5
     const dither_from = 0.5
     const dither_to = 1.0
@@ -78,10 +87,12 @@ proc main() =
             
         if g mod print == 0:
             let mean = scores.sum() / scores_len
-            echo "generation mean ", mean
+            echo "generation  mean ", mean
             echo "generation ", g
+            file.writeLine($g & "," & $mean)
         
     let best_idx = scores.min_index()
     echo "best ", pop[best_idx]
+    file.close()
 
 main()
