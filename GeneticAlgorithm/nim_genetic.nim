@@ -8,7 +8,7 @@ import times
 import strutils, math, threadpool
 
 randomize()
-
+# some comment here
 # Globals
 const N_THREADS = 4
 const POPULATION_SIZE = 100_000

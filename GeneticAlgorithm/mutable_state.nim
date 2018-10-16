@@ -5,13 +5,13 @@ const POOLSIZE = N_THREADS * 1
 const NUM_CHARACTERS = 10
 const TARGET = @[0, 0, 1, 1, 2, 2, 3, 3]
 const MUTATE_RATE = 1.0
-
+# another commen
 type
     Agent* = ref object
         data*: seq[int]
         fitness*: float
 
-proc newAgent(): Agent =
+
     result = Agent()
     result.fitness = -1.0
     result.data = newSeq[int](TARGET.len)
