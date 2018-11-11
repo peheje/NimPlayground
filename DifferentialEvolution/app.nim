@@ -23,17 +23,21 @@ proc main() =
     # Constants
     const optimizer = f1
     const params = 1000
-    const bound_from = -10.0
-    const bound_to = 10.0
+    const bound_from = -100.0
+    const bound_to = 100.0
 
     const print = 200
     const generations = 10000
-    const popsize = 100
-    const mutate = 0.5
-    const dither_from = 0.5
-    const dither_to = 1.0
+    const popsize = 200
+    
+    var mutate = 0.8
+    const mutate_from = 0.1
+    const mutate_to = 0.9
 
     var crossover = 0.9
+    const crossover_from = 0.1
+    const crossover_to = 1.0
+
     var scores: array[popsize, float]
     var others: array[3, int]
     var donor: array[params, float]
@@ -50,7 +54,8 @@ proc main() =
 
     # For each generation
     for g in 0..<generations:
-        crossover = rand(bound_from..bound_to)
+        # crossover = rand(bound_from..bound_to)
+        # mutate = rand(mutate_from, mutate_to)
         
         for i in 0..<popsize:
             # Get three others
@@ -91,15 +96,15 @@ proc main() =
                 scores[i] = score_trial
             
         if g mod print == 0:
-            let mean = scores.sum() / scores_len
-            echo "generation  mean ", mean
+            echo "generation mean ", scores.sum() / scores_len
+            echo "generation best ", scores.min()
             echo "generation ", g
 
             when log_csv:
                 file.writeLine($g & "," & $mean)
         
     let best_idx = scores.arg_min()
-    echo "best ", pop[best_idx]
+    #echo "best ", pop[best_idx]
 
     when log_csv:
         file.close()
