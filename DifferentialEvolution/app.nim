@@ -8,11 +8,11 @@ import helpers
 import streams
 # import nimprof
 
-const writeToFile = false
+const log_csv = false
 
 proc main() =
 
-    when writeToFile:
+    when log_csv:
         # Open file for writing
         let file = newFileStream("/Users/phj/Desktop/nim_write.txt", FileMode.fmWrite)
         if file != nil:
@@ -69,7 +69,10 @@ proc main() =
             for j in 0..<params:
                 donor[j] = x0[j] + (x1[j] - x2[j]) * mutate
             
-            limit_bounds(donor, bound_from, bound_to)
+            # Limit bounds
+            for j in 0..<params:
+                if donor[j] < bound_from: donor[j] = bound_from
+                elif donor[j] > bound_to: donor[j] = bound_to
 
             # Create trial
             for j in 0..<params:
@@ -92,13 +95,13 @@ proc main() =
             echo "generation  mean ", mean
             echo "generation ", g
 
-            when writeToFile:
+            when log_csv:
                 file.writeLine($g & "," & $mean)
         
-    let best_idx = scores.min_index()
+    let best_idx = scores.arg_min()
     echo "best ", pop[best_idx]
 
-    when writeToFile:
+    when log_csv:
         file.close()
 
 main()
