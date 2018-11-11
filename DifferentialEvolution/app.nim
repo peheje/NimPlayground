@@ -27,8 +27,8 @@ proc main() =
     const bound_to = 100.0
 
     const print = 200
-    const generations = 10000
-    const popsize = 200
+    const generations = 40000
+    const popsize = 150
     
     var mutate = 0.4
     const mutate_range = 0.2..0.9
@@ -89,9 +89,7 @@ proc main() =
             let score_target = scores[i]
 
             if score_trial < score_target:
-                # pop[i] = trial
-                for j in 0..<params:
-                    pop[i][j] = trial[j]
+                pop[i] = trial
                 scores[i] = score_trial
             
         if g mod print == 0:
