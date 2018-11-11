@@ -4,28 +4,30 @@
 import math
 import random
 import problems
-import fastrandom
 import helpers
 import streams
 # import nimprof
 
+const writeToFile = false
+
 proc main() =
 
-    # Open file for writing
-    let file = newFileStream("/Users/phj/Desktop/nim_write.txt", FileMode.fmWrite)
-    if file != nil:
-        file.writeLine("step,mean")
-    else:
-        quit("could not open file", 100)
+    when writeToFile:
+        # Open file for writing
+        let file = newFileStream("/Users/phj/Desktop/nim_write.txt", FileMode.fmWrite)
+        if file != nil:
+            file.writeLine("step,mean")
+        else:
+            quit("could not open file", 100)
 
     # Constants
     const optimizer = f1
     const params = 1000
-    const bound_from = -10
-    const bound_to = 10
+    const bound_from = -10.0
+    const bound_to = 10.0
 
     const print = 200
-    const generations = 20000
+    const generations = 10000
     const popsize = 100
     const mutate = 0.5
     const dither_from = 0.5
@@ -43,19 +45,19 @@ proc main() =
     var pop: array[popsize, array[params, float]]
     for i in 0..<popsize:
         for j in 0..<params:
-            pop[i][j] = f_rand(boundFrom, boundTo)
+            pop[i][j] = rand(bound_from..bound_to)
         scores[i] = optimizer(pop[i])
 
     # For each generation
     for g in 0..<generations:
-        crossover = f_rand(dither_from, dither_to)
+        crossover = rand(bound_from..bound_to)
         
         for i in 0..<popsize:
             # Get three others
             for j in 0..<3:
-                var idx = i_rand(0, popsize)
+                var idx = rand(popsize)
                 while idx == i:
-                    idx = i_rand(0, popsize)
+                    idx = rand(popsize)
                 others[j] = idx
             
             let x0 = pop[others[0]]
@@ -71,7 +73,7 @@ proc main() =
 
             # Create trial
             for j in 0..<params:
-                if f_rand(0, 1.0) < crossover:
+                if rand(0.0..1.0) < crossover:
                     trial[j] = donor[j]
                 else:
                     trial[j] = xt[j]
@@ -89,10 +91,14 @@ proc main() =
             let mean = scores.sum() / scores_len
             echo "generation  mean ", mean
             echo "generation ", g
-            file.writeLine($g & "," & $mean)
+
+            when writeToFile:
+                file.writeLine($g & "," & $mean)
         
     let best_idx = scores.min_index()
     echo "best ", pop[best_idx]
-    file.close()
+
+    when writeToFile:
+        file.close()
 
 main()
