@@ -20,7 +20,7 @@ proc main() =
         else:
             quit("could not open file", 100)
 
-    # Constants
+    # Adjustable parameters
     const optimizer = f1
     const params = 1000
     const bound_from = -100.0
@@ -30,13 +30,11 @@ proc main() =
     const generations = 10000
     const popsize = 200
     
-    var mutate = 0.8
-    const mutate_from = 0.1
-    const mutate_to = 0.9
+    var mutate = 0.4
+    const mutate_range = 0.2..0.9
 
     var crossover = 0.9
-    const crossover_from = 0.1
-    const crossover_to = 1.0
+    const crossover_range = 0.1..1.0
 
     var scores: array[popsize, float]
     var others: array[3, int]
@@ -54,8 +52,8 @@ proc main() =
 
     # For each generation
     for g in 0..<generations:
-        # crossover = rand(bound_from..bound_to)
-        # mutate = rand(mutate_from, mutate_to)
+        crossover = rand(crossover_range)
+        mutate = rand(mutate_range)
         
         for i in 0..<popsize:
             # Get three others
@@ -91,6 +89,7 @@ proc main() =
             let score_target = scores[i]
 
             if score_trial < score_target:
+                # pop[i] = trial
                 for j in 0..<params:
                     pop[i][j] = trial[j]
                 scores[i] = score_trial
@@ -104,7 +103,7 @@ proc main() =
                 file.writeLine($g & "," & $mean)
         
     let best_idx = scores.arg_min()
-    #echo "best ", pop[best_idx]
+    echo "best ", pop[best_idx]
 
     when log_csv:
         file.close()
