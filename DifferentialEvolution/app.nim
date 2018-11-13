@@ -12,7 +12,7 @@ proc main() =
 
     const
         optimizer = f1
-        params = 10000
+        params = 1000
         bound_from = -100.0
         bound_to = 100.0
         print = 200
@@ -56,9 +56,9 @@ proc main() =
         for i in 0..<popsize:
             # Get three others
             for j in 0..<3:
-                var idx = rand(popsize)
+                var idx = rand(popsize-1)
                 while idx == i:
-                    idx = rand(popsize)
+                    idx = rand(popsize-1)
                 others[j] = idx
 
             let
