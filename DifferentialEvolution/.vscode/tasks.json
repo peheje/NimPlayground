@@ -84,7 +84,7 @@
             "args": [
                 "--cc:clang",
                 "-d:release",
-                "--clang.options.speed=-Ofast -flto -fno-strict-aliasing -ffast-math",
+                "--clang.options.speed=-Ofast -flto -fno-strict-aliasing -ffast-math -fno-signed-zeros -freciprocal-math -ffp-contract=fast ",
                 "--clang.options.linker=-flto",
                 "c",
                 "-r",

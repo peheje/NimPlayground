@@ -12,7 +12,7 @@ proc main() =
 
     const
         optimizer = f1
-        params = 1000
+        params = 10000
         bound_from = -100.0
         bound_to = 100.0
         print = 200
