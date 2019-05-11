@@ -103,14 +103,8 @@ proc horses_and_jockeys*(x: openarray[float]): float =
 
 let data = read_xy("data.txt")
 
-proc lin_reg*(c: openArray[float]): float =
-    # y = ax + b
-    result = 0.0
-    for point in data:
-        let err = point.y - (c[0]*point.x + c[1])
-        result += err*err
-
 proc poly_reg*(c: openArray[float]): float =
+    # poly_reg with two coefficients are linear-regression
     result = 0.0
     for point in data:
         let err = point.y - horner(c, point.x)
