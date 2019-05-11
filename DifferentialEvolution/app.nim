@@ -11,7 +11,7 @@ import streams
 proc main() =
 
     const
-        optimizer = lin_reg
+        optimizer = poly_reg
         params = 2
         bounds = -10.0..10.0
         print = 1000
