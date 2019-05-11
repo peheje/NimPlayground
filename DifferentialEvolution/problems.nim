@@ -1,4 +1,5 @@
 import math
+import helpers
 
 # Optimization problems
 proc constraints1*(c: openarray[float]): float =
@@ -100,17 +101,17 @@ proc horses_and_jockeys*(x: openarray[float]): float =
         heads = horses + jockeys
     result = abs(36-heads) + abs(100-legs)
 
-proc lin_reg*(c: openArray[float]): float =
-    const xs = [0.0, 10.0, 30.0, 70.0, 90.0, 110.0]
-    const ys = [100.0, 142.0, 190.0, 225.0, 280.0, 300.0]
+let data = read_xy("data.txt")
 
+proc lin_reg*(c: openArray[float]): float =
     # y = ax + b
-    let a = c[0]
-    let b = c[1]
-    
     result = 0.0
-    for i in 0..<len(xs):
-        let x = xs[i]
-        let y = ys[i]
-        let err = y - (a*x + b)
-        result += abs(err*err)
+    for point in data:
+        let err = point.y - (c[0]*point.x + c[1])
+        result += err*err
+
+proc poly_reg*(c: openArray[float]): float =
+    result = 0.0
+    for point in data:
+        let err = point.y - horner(c, point.x)
+        result += err*err

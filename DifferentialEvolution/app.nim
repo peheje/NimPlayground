@@ -11,12 +11,12 @@ import streams
 proc main() =
 
     const
-        optimizer = f1
-        params = 100
-        bounds = -100.0..100.0
-        print = 200
-        generations = 10000
-        popsize = 150
+        optimizer = poly_reg
+        params = 8
+        bounds = -10.0..10.0
+        print = 1000
+        generations = 10_000
+        popsize = 100
         mutate_range = 0.2..0.9
         crossover_range = 0.1..1.0
         log_csv = false
