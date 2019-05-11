@@ -82,7 +82,7 @@ proc main() =
                 else:
                     trial[j] = xt[j]
 
-            # Greedy pick best
+            # Replace current if better
             let
                 score_trial = optimizer(trial)
                 score_target = scores[i]
@@ -92,7 +92,8 @@ proc main() =
                 scores[i] = score_trial
 
         if g mod print == 0:
-            echo "generation mean ", scores.sum() / scores_len
+            let mean = scores.sum() / scores_len
+            echo "generation mean ", mean
             echo "generation best ", scores.min()
             echo "generation ", g
 
