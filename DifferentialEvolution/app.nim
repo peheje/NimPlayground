@@ -12,9 +12,8 @@ proc main() =
 
     const
         optimizer = f1
-        params = 1000
-        bound_from = -100.0
-        bound_to = 100.0
+        params = 100
+        bounds = -100.0..100.0
         print = 200
         generations = 10000
         popsize = 150
@@ -45,7 +44,7 @@ proc main() =
     # Init population
     for i in 0..<popsize:
         for j in 0..<params:
-            pop[i][j] = rand(bound_from..bound_to)
+            pop[i][j] = rand(bounds)
         scores[i] = optimizer(pop[i])
 
     # For each generation
@@ -73,8 +72,8 @@ proc main() =
 
             # Limit bounds
             for j in 0..<params:
-                if donor[j] < bound_from: donor[j] = bound_from
-                elif donor[j] > bound_to: donor[j] = bound_to
+                if donor[j] < bounds.a: donor[j] = bounds.a
+                elif donor[j] > bounds.b: donor[j] = bounds.b
 
             # Create trial
             for j in 0..<params:
