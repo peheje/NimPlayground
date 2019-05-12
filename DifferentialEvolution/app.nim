@@ -11,13 +11,13 @@ import streams
 proc main() =
 
     const
-        optimizer = poly_reg
-        params = 2
+        optimizer = f1
+        params = 1000
         bounds = -10.0..10.0
         print = 1000
         generations = 10_000
         popsize = 100
-        mutate_range = 0.2..0.9
+        mutate_range = 0.2..0.95
         crossover_range = 0.1..1.0
         log_csv = false
 
@@ -91,7 +91,7 @@ proc main() =
                 pop[i] = trial
                 scores[i] = score_trial
 
-        if g mod print == 0:
+        if g mod print == 0 or g == generations-1:
             let mean = scores.sum() / scores_len
             echo "generation mean ", mean
             echo "generation best ", scores.min()
