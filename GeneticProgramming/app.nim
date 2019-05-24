@@ -1,7 +1,6 @@
 import strutils
 import marshal
 import math
-import tables
 import random
 
 type
@@ -36,7 +35,7 @@ proc print(op: Operation) =
 proc print(node: Node, s: int = 0) =
     if node.isNil:
         return
-    print(node.right, s+6)
+    print(node.right, s + 6)
     echo ""
     for i in 0..<s:
         stdout.write(" ")
@@ -44,7 +43,7 @@ proc print(node: Node, s: int = 0) =
         echo node.value
     else:
         node.op.print()
-    print(node.left, s+6)
+    print(node.left, s + 6)
 
 proc eval(node: Node): float =
     if node.isNil:
@@ -99,7 +98,7 @@ proc read_xy*(path: string): seq[Point] =
 
 proc main() = 
     randomize()
-    let data = read_xy("data.txt")
+    # let data = read_xy("data.txt")
 
     # Example data for (2.2 − (2/11)) + (7*cos(0.5))
     let root = Node(op: Operation.add)
