@@ -39,7 +39,7 @@ proc print(node: Node, s: int = 0) =
 proc eval(node: Node): float =
     if node.isNil:
         return
-    if node.op == Operation.value:
+    elif node.op == Operation.value:
         return node.value
     let op = OPERATIONS[node.op]
     return op(node.left, node.right)
@@ -50,13 +50,13 @@ proc randomNode(leaf: bool = false): Node =
     else:
         result = Node(op: Operation(rand(1 + SKIP..Operation.high.ord())))
 
-proc generate(node: var Node, max: int, counter: int = 0) =
+proc randomTree(node: var Node, max: int, counter: int = 0) =
     node = randomNode(max == counter)
     if counter >= max:
         return
-    generate(node.left, max, counter + 1)
+    randomTree(node.left, max, counter + 1)
     if not UNARY.contains(node.op):
-        generate(node.right, max, counter + 1)
+        randomTree(node.right, max, counter + 1)
 
 proc read_xy*(path: string): seq[Point] =
     let lines = readFile(path).split("\n")
@@ -106,9 +106,9 @@ proc main() =
     UNARY.incl(Operation.cos)
     UNARY.incl(Operation.sin)
 
-    for _ in 0..<10:
+    for _ in 0..<1000:
         var gen = Node()
-        generate(gen, 2)
+        randomTree(gen, 3)
         gen.print()
         echo gen.eval()
         echo "===="
