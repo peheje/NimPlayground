@@ -2,6 +2,7 @@ import strutils
 import marshal
 import math
 import random
+import tables
 
 type
     Point* = object
@@ -15,6 +16,8 @@ type
         right: Node
         op: Operation
         value: float
+
+var OPS = initTable[Operation, proc (l, r: Node): float]()
 
 proc print(op: Operation) =
     if op == Operation.add:
@@ -48,38 +51,21 @@ proc print(node: Node, s: int = 0) =
 proc eval(node: Node): float =
     if node.isNil:
         return
-    elif node.op == Operation.add:
-        return node.left.eval() + node.right.eval()
-    elif node.op == Operation.subtract:
-        return node.left.eval() - node.right.eval()
-    elif node.op == Operation.multiply:
-        return node.left.eval() * node.right.eval()
-    elif node.op == Operation.divide:
-        var right = node.right.eval()
-        if right == 0.0:
-            right = 1.0
-        return node.left.eval() / right
-    elif node.op == Operation.cos:
-        return math.cos(node.left.eval())
-    elif node.op == Operation.sin:
-        return math.sin(node.left.eval())
-    elif node.op == Operation.value:
-        return node.value
-    else:
-        raise newException(Exception, "Operation not supported")
 
-proc randomOperator(): Operation =
-    let r = rand(1..Operation.high.ord())   # Don't allow value
-    return Operation(r)
+    if node.op == Operation.value:
+        return node.value
+
+    let op = OPS[node.op]
+    return op(node.left, node.right)
 
 proc randomNode(leaf: bool = false): Node =
     if leaf:
-        result = Node(op: value, value: rand(-100.0..100.0))
+        result = Node(op: Operation.value, value: rand(-100.0..100.0))
     else:
-        result = Node(op: randomOperator())
+        result = Node(op: Operation(rand(1..Operation.high.ord())))
 
 proc generate(node: var Node, max: int, counter: int = 0) =
-    node = randomNode(max == counter)    
+    node = randomNode(max == counter)
     if counter >= max:
         return
     generate(node.left, max, counter + 1)
@@ -97,29 +83,36 @@ proc read_xy*(path: string): seq[Point] =
 # Fitting the data.txt for 2. order poly:
 # f(x) =  1.6484391286220554 + 0.99555711903272903 * x^1 + -0.085717636022514102 * x^2
 
-proc main() = 
-    randomize()
-    # let data = read_xy("data.txt")
-
-    # Example data for (2.2 − (2/11)) + (7*cos(0.5))
+proc runExample() =
+    # Example data for (2.2 − (2/11)) + (7*cos(0.5)) = 8.16125975141442719463
     let root = Node(op: Operation.add)
-    
     root.right = Node(op: Operation.multiply)
     root.right.left = Node(op: Operation.value, value: 7.0)
     root.right.right = Node(op: Operation.cos)
     root.right.right.left = Node(op: Operation.value, value: 0.5)
-    
     root.left = Node(op: Operation.subtract)
     root.left.left = Node(op: Operation.value, value: 2.2)
     root.left.right = Node(op: Operation.divide)
     root.left.right.left = Node(op: Operation.value, value: 2.0)
     root.left.right.right = Node(op: Operation.value, value: 11.0)
-
     root.print()
     echo root.eval()
 
+proc main() =
+    randomize()
+    # let data = read_xy("data.txt")
+
+    OPS[Operation.add] = proc (l, r: Node): float = l.eval() + r.eval()
+    OPS[Operation.subtract] = proc (l, r: Node): float = l.eval() - r.eval()
+    OPS[Operation.multiply] = proc (l, r: Node): float = l.eval() * r.eval()
+    OPS[Operation.divide] = proc (l, r: Node): float = l.eval() / r.eval()
+    OPS[Operation.cos] = proc (l, r: Node): float = cos(l.eval())
+    OPS[Operation.sin] = proc (l, r: Node): float = sin(l.eval())
+
+    runExample()
+
     var gen = Node()
-    for _ in 0..<10:
+    for _ in 0..<0:
         generate(gen, 2)
         gen.print()
         echo "===="
