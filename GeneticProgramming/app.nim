@@ -41,7 +41,7 @@ proc print(node: Node, s: int = 0) =
     for i in 0..<s:
         stdout.write(" ")
     if node.op == Operation.value:
-        echo node.value
+        echo node.value.formatFloat(ffDecimal, 3)
     else:
         node.op.print()
     print(node.left, s+6)
@@ -121,11 +121,11 @@ proc main() =
     var gen = Node()
     var c = 0
     while true:
-        generate(gen, 1)
+        generate(gen, 10)
         c += 1
         if c mod 1000 == 0:
             echo c
-        gen.print()
+        # gen.print()
         echo "===="
         echo gen.eval()
 
