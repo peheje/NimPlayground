@@ -3,6 +3,7 @@ import marshal
 import math
 import random
 import tables
+import sets
 
 type
     Point* = object
@@ -17,6 +18,7 @@ type
         op: Operation
         value: float
 
+var UNARY = initSet[Operation]()
 var OPERATIONS = initTable[Operation, proc (l, r: Node): float]()
 var RANGE = -100.0..100.0
 var SKIP = 0
@@ -53,7 +55,8 @@ proc generate(node: var Node, max: int, counter: int = 0) =
     if counter >= max:
         return
     generate(node.left, max, counter + 1)
-    generate(node.right, max, counter + 1)
+    if not UNARY.contains(node.op):
+        generate(node.right, max, counter + 1)
 
 proc read_xy*(path: string): seq[Point] =
     let lines = readFile(path).split("\n")
@@ -85,9 +88,12 @@ proc runExample() =
 proc main() =
     randomize()
     # let data = read_xy("data.txt")
-    
+    # runExample
+
+    # Setup
     SKIP = 2
     RANGE = 0.0..10.0
+
     OPERATIONS[Operation.add] = proc (l, r: Node): float = l.eval() + r.eval()
     OPERATIONS[Operation.sub] = proc (l, r: Node): float = l.eval() - r.eval()
     OPERATIONS[Operation.mul] = proc (l, r: Node): float = l.eval() * r.eval()
@@ -95,6 +101,10 @@ proc main() =
     OPERATIONS[Operation.sqrt] = proc (l, r: Node): float = sqrt(l.eval())
     OPERATIONS[Operation.cos] = proc (l, r: Node): float = cos(l.eval())
     OPERATIONS[Operation.sin] = proc (l, r: Node): float = sin(l.eval())
+
+    UNARY.incl(Operation.sqrt)
+    UNARY.incl(Operation.cos)
+    UNARY.incl(Operation.sin)
 
     for _ in 0..<10:
         var gen = Node()
