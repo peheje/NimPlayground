@@ -9,3 +9,5 @@ DifferentialEvolution/app
 DifferentialEvolution/helpers
 GeneticProgramming/app
 .DS_Store
+DifferentialEvolution/app.exe
+GeneticProgramming/app.exe
