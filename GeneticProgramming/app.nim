@@ -8,7 +8,7 @@ type
         x*, y*: float
 
     Operation = enum
-        add, subtract, multiply, divide, cos, sin, value
+        value, add, subtract, multiply, divide, cos, sin
 
     Node = ref object
         left: Node
@@ -69,16 +69,17 @@ proc eval(node: Node): float =
         raise newException(Exception, "Operation not supported")
 
 proc randomOperator(): Operation =
-    let r = rand(Operation.high.ord())
+    let r = rand(1..Operation.high.ord())   # Don't allow value
     return Operation(r)
 
-proc randomNode(): Node =
-    result = Node(op: randomOperator())
-    if result.op == Operation.value:
-        result.value = rand(-100.0..100.0)
+proc randomNode(leaf: bool = false): Node =
+    if leaf:
+        result = Node(op: value, value: rand(-100.0..100.0))
+    else:
+        result = Node(op: randomOperator())
 
 proc generate(node: var Node, max: int, counter: int = 0) =
-    node = randomNode()    
+    node = randomNode(max == counter)    
     if counter >= max:
         return
     generate(node.left, max, counter + 1)
@@ -118,13 +119,9 @@ proc main() =
     echo root.eval()
 
     var gen = Node()
-    var c = 0
-    while true:
-        generate(gen, 10)
-        c += 1
-        if c mod 1000 == 0:
-            echo c
-        # gen.print()
+    for _ in 0..<10:
+        generate(gen, 2)
+        gen.print()
         echo "===="
         echo gen.eval()
 
