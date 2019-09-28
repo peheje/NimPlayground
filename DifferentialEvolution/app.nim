@@ -6,7 +6,7 @@ import streams
 # import nimprof
 
 # should compile with -flto enabled e.g., -d:release is not enough
-# nim c -r -d:release -l:-flto <path>
+# nim c -r -d:release -d:danger -l:-flto app.nim
 
 proc main() =
 
