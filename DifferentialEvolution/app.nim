@@ -11,15 +11,16 @@ import streams
 proc main() =
 
     const
+        use_sequences = true
+        log_csv = false
+        print = 1000
         optimizer = f1
         params = 1000
         bounds = -10.0..10.0
-        print = 100
-        generations = 1000
-        popsize = 100
+        generations = 2000
+        popsize = 200
         mutate_range = 0.2..0.95
         crossover_range = 0.1..1.0
-        log_csv = false
 
     when log_csv:
         # Open file for writing
@@ -35,14 +36,24 @@ proc main() =
         mutate = 0.4
         scores: array[popsize, float]
         others: array[3, int]
-        donor: array[params, float]
-        trial: array[params, float]
-        pop: array[popsize, array[params, float]]
+
+    when use_sequences:
+        var
+            donor = newSeq[float](params)
+            trial = newSeq[float](params)
+            pop = newSeq[seq[float]](popsize)
+    else:
+        var
+            donor: array[params, float]
+            trial: array[params, float]
+            pop: array[popsize, array[params, float]]
 
     let scores_len = len(scores).toFloat
 
     # Init population
     for i in 0..<popsize:
+        when use_sequences:
+            pop[i] = newSeq[float](params)
         for j in 0..<params:
             pop[i][j] = rand(bounds)
         scores[i] = optimizer(pop[i])
