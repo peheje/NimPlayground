@@ -5,6 +5,7 @@ import json
 import os
 import strutils
 import tables
+import sequtils
 
 const bounds = -1.0..1.0
 
@@ -21,7 +22,7 @@ type
         layers: seq[Layer]
         fitness: float
 
-    Series = ref object
+    Series* = ref object
         xs: seq[seq[float]]
         ys: seq[int]
 
@@ -29,7 +30,7 @@ type
         inputs, outputs: int
         test, train: Series
 
-    Iris = ref object of Dataset
+    Iris* = ref object of Dataset
 
 proc writeJsonDebug(o: any) =
     const path = "/Users/phj/Desktop/nim_write.txt"
@@ -49,20 +50,34 @@ proc newIris(): Iris =
     }.toTable()
 
     const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
-    let all = Series()
+    var rows = newSeq[string]()
     for line in lines(path):
-        let splitted = line.split(",")
+        rows.add(line)
 
+    shuffle(rows)
+    var xss = newSeq[seq[float]]()
+    var ys = newSeq[int]() 
+    for row in rows:
+        let dims = row.split(",")
         var xs = newSeq[float]()
-        for i in 0..<splitted.len - 1:
-            xs.add(parseFloat(splitted[i]))
-        all.xs.add(xs)
+        for i in 0..<dims.len - 1:
+            xs.add(parseFloat(dims[i]))
+        let last = map[dims[dims.len - 1]]
+        xss.add(xs)
+        ys.add(last)
 
-        let last = map[splitted[splitted.len - 1]]
-        all.ys.add(last)
+    let ratio = 0.5
+    let numberOfTraining = toInt(ratio * ys.len.toFloat)
 
-    echo pretty(%all)
-    writeJsonDebug(all)
+    for i in 0..<ys.len:
+        if i < numberOfTraining:
+            result.train.xs.add(xss[i])
+            result.train.ys.add(ys[i])
+        else:
+            result.test.xs.add(xss[i])
+            result.test.ys.add(ys[i])
+
+    writeJsonDebug(ys)
 
 func lerp(a, b, p: float): float =
     return a + (b - a) * p
@@ -158,11 +173,9 @@ proc main() =
     let iris = newIris()
 
     var result = n1.invoke(@[1.0, 2.0, 3.0])
-    #writeJsonDebug(n1)
     #sleep(2000)
     for i in 0..<10:
         n1.mutate(1.0, 0.25)
-    #writeJsonDebug(n1)
     #echo result
 
 main()
