@@ -3,6 +3,8 @@ import random
 import streams
 import json
 import os
+import strutils
+import tables
 
 const bounds = -1.0..1.0
 
@@ -18,6 +20,53 @@ type
     Net* = ref object
         layers: seq[Layer]
         fitness: float
+
+    Series = ref object
+        xs: seq[seq[float]]
+        ys: seq[int]
+
+    Dataset* = ref object of RootObj
+        inputs, outputs: int
+        test, train: Series
+
+    Iris = ref object of Dataset
+
+proc writeJsonDebug(o: any) =
+    const path = "/Users/phj/Desktop/nim_write.txt"
+    let file = newFileStream(path, FileMode.fmWrite)
+    if file != nil:
+        file.writeLine(pretty(%o))
+
+proc newIris(): Iris =
+
+    let map = {
+        "Iris-virginica": 0,
+        "Iris-versicolor": 1,
+        "Iris-setosa": 2
+    }.toTable()
+
+    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
+    let lines = readLines(path, 10)
+    let series = Series()
+    for line in lines(path):
+        let splitted = line.split(",")
+
+        var xs = newSeq[float]()
+        for i in 0..<splitted.len - 1:
+            let cell = splitted[i]
+            xs.add(parseFloat(cell))
+        
+        var ys = newSeq[int]()
+        let last = splitted[splitted.len - 1]
+        ys.add(map[last])
+        
+        series.xs.add(xs)
+        series.ys.add(ys)
+
+
+    echo pretty(%series)
+    writeJsonDebug(series)
+
 
 func lerp(a, b, p: float): float =
     return a + (b - a) * p
@@ -104,18 +153,13 @@ proc mutate(x: Net, power, frequency: float) =
         for neuron in layer.neurons:
             neuron.mutate(power, frequency)
 
-proc writeJsonDebug(o: any) =
-    const path = "/Users/phj/Desktop/nim_write.txt"
-    let file = newFileStream(path, FileMode.fmWrite)
-    if file != nil:
-        file.writeLine(pretty(%o))
-
 proc main() =
     randomize()
     let dataInputs = 3
     let dataOutputs = 4
-    let n1 = newNet(
-        @[dataInputs, 100, 100, 100, 100, 100, dataOutputs])
+    let n1 = newNet(@[dataInputs, 100, 100, 100, 100, 100, dataOutputs])
+
+    let iris = newIris()
     
     var result = n1.invoke(@[1.0, 2.0, 3.0])
     #writeJsonDebug(n1)
