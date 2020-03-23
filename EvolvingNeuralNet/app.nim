@@ -1,12 +1,9 @@
 import math
 import random
-import streams
-import json
-import os
-import strutils
-import tables
-import sequtils
 import sugar
+import helpers
+import datasets
+import json
 
 const bounds = -1.0..1.0
 
@@ -23,72 +20,6 @@ type
         layers: seq[Layer]
         fitness: float
         correct, weights: int
-
-    Series* = ref object
-        xs: seq[seq[float]]
-        ys: seq[int]
-
-    Dataset* = ref object of RootObj
-        inputs, outputs: int
-        test, train: Series
-
-    Iris* = ref object of Dataset
-
-proc echoJsonDebug(o: any) =
-    echo pretty(%o)
-
-proc writeJsonDebug(o: any) =
-    const path = "/Users/phj/Desktop/nim_write.txt"
-    let file = newFileStream(path, FileMode.fmWrite)
-    if file != nil:
-        file.writeLine(pretty(%o))
-
-proc newSeries(): Series =
-    new result
-    result.xs = newSeq[seq[float]]()
-    result.ys = newSeq[int]()
-
-proc newIris(): Iris =
-    new result
-    result.inputs = 4
-    result.outputs = 3
-    result.test = newSeries()
-    result.train = newSeries()
-
-    let map = {
-        "Iris-virginica": 0,
-        "Iris-versicolor": 1,
-        "Iris-setosa": 2
-    }.toTable()
-
-    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
-
-    var rows = newSeq[string]()
-    for line in lines(path):
-        rows.add(line)
-    shuffle(rows)
-
-    var xss = newSeq[seq[float]]()
-    var ys = newSeq[int]()
-    for row in rows:
-        let dims = row.split(",")
-        var xs = newSeq[float]()
-        for i in 0..<dims.len - 1:
-            xs.add(parseFloat(dims[i]))
-        let last = map[dims[dims.len - 1]]
-        xss.add(xs)
-        ys.add(last)
-
-    let ratioOfTraining = 0.5
-    let numberOfTraining = toInt(ratioOfTraining * ys.len.toFloat)
-
-    for i in 0..<ys.len:
-        if i < numberOfTraining:
-            result.train.xs.add(xss[i])
-            result.train.ys.add(ys[i])
-        else:
-            result.test.xs.add(xss[i])
-            result.test.ys.add(ys[i])
 
 func lerp(a, b, p: float): float =
     return a + (b - a) * p
@@ -108,6 +39,13 @@ func invoke(x: Neuron, input: seq[float], lastLayer: bool): float =
         #result = max(result, 0.0) # Relu
         #result = 1.0 / (1.0 + exp(-result)) # Sigmoid
 
+proc mutate(x: Neuron, power, frequency: float) =
+    for i in 0..<x.weights.len:
+        if rand(0.0..1.0) < frequency:
+            x.weights[i] += rand(-power..power)
+    if rand(0.0..1.0) < frequency:
+        x.bias += rand(-power..power)
+
 proc newLayer(previousInputSize, size: int, last: bool): Layer =
     new result
     for i in 0..<size:
@@ -118,28 +56,17 @@ func invoke(x: Layer, input: seq[float]): seq[float] =
     for neuron in x.neurons:
         result.add(neuron.invoke(input, x.last))
 
+proc newNet(setup: seq[int]): Net =
+    new result
+    let lastLayerIdx = setup.len-2
+    for i in 0..<setup.len-1:
+        result.layers.add(newLayer(setup[i], setup[i+1], i == lastLayerIdx))
+        result.weights += (1+setup[i]) * setup[i+1]
+
 func invoke(x: Net, input: seq[float]): seq[float] =
     result = input
     for layer in x.layers:
         result = layer.invoke(result)
-
-proc argMax(x: seq[float]): int =
-    var max = low(float)
-    result = -1
-    for i in 0..<x.len:
-        if x[i] > max:
-            max = x[i]
-            result = i
-
-proc argMaxBy[T, V](s: openArray[T], call: proc(x: T): V): int =
-    var max = call(s[0])
-    var maxIdx = 0
-    for i in 1..<s.len:
-        let value = call(s[i])
-        if value > max:
-            max = value
-            maxIdx = i
-    return maxIdx
 
 proc correctPredictions(n: Net, series: Series): int =
     result = 0
@@ -168,20 +95,6 @@ proc computeFitness(n: Net, series: Series, parentInheritance, regularization: f
     let parentFitness = n.fitness
     n.fitness = parentInheritance * parentFitness + batchFitness
 
-proc newNet(setup: seq[int]): Net =
-    new result
-    let lastLayerIdx = setup.len-2
-    for i in 0..<setup.len-1:
-        result.layers.add(newLayer(setup[i], setup[i+1], i == lastLayerIdx))
-        result.weights += (1+setup[i]) * setup[i+1]
-
-proc mutate(x: Neuron, power, frequency: float) =
-    for i in 0..<x.weights.len:
-        if rand(0.0..1.0) < frequency:
-            x.weights[i] += rand(-power..power)
-    if rand(0.0..1.0) < frequency:
-        x.bias += rand(-power..power)
-
 proc mutate(x: Net, power, frequency: float) =
     for layer in x.layers:
         for neuron in layer.neurons:
@@ -193,7 +106,7 @@ proc main() =
     const print = false
 
     var avg = 0.0
-    const size = 10000;
+    const size = 20000;
     var nets = newSeq[Net]()
     for i in 0..<size:
         let net = newNet(@[iris.inputs, 10, 10, 10, iris.outputs])
@@ -215,7 +128,5 @@ proc main() =
     let testPredictions = bestNet.correctPredictions(iris.test)
     let testPercentage = testPredictions.toFloat / iris.test.xs.len.toFloat
     echo "test percentage " & $testPercentage
-    
-
 
 main()

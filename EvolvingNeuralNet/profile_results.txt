@@ -1,0 +1,36 @@
+total executions of each stack trace:
+Entry: 1/11 Calls: 17/43 = 39.53% [sum: 17; 17/43 = 39.53%]
+  /Users/phj/.choosenim/toolchains/nim-1.0.6/lib/system.nim: += 17/43 = 39.53%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: correctPredictions 40/43 = 93.02%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: computeFitness 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: main 43/43 = 100.00%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: app 43/43 = 100.00%
+Entry: 2/11 Calls: 13/43 = 30.23% [sum: 30; 30/43 = 69.77%]
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: correctPredictions 40/43 = 93.02%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: computeFitness 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: main 43/43 = 100.00%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: app 43/43 = 100.00%
+Entry: 3/11 Calls: 4/43 = 9.30% [sum: 34; 34/43 = 79.07%]
+  /Users/phj/.choosenim/toolchains/nim-1.0.6/lib/system.nim: toFloat 5/43 = 11.63%
+  /Users/phj/.choosenim/toolchains/nim-1.0.6/lib/system/gc.nim: newSeq 7/43 = 16.28%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: correctPredictions 40/43 = 93.02%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: computeFitness 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: main 43/43 = 100.00%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: app 43/43 = 100.00%
+Entry: 4/11 Calls: 2/43 = 4.65% [sum: 36; 36/43 = 83.72%]
+  /Users/phj/.choosenim/toolchains/nim-1.0.6/lib/system/gc.nim: newObj 2/43 = 4.65%
+  /Users/phj/.choosenim/toolchains/nim-1.0.6/lib/system/gc.nim: newSeq 7/43 = 16.28%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: invoke 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: correctPredictions 40/43 = 93.02%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: computeFitness 39/43 = 90.70%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: main 43/43 = 100.00%
+  /Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/app.nim: app 43/43 = 100.00%
