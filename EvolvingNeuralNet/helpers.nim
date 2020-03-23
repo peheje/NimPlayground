@@ -27,3 +27,6 @@ proc writeJsonDebug*(o: any) =
     let file = newFileStream(path, FileMode.fmWrite)
     if file != nil:
         file.writeLine(pretty(%o))
+
+func lerp(a, b, p: float): float =
+    return a + (b - a) * p
