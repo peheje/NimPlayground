@@ -13,14 +13,15 @@ type
     Neuron* = ref object
         weights: seq[float]
         bias: float
-    
+
     Layer* = ref object
         neurons: seq[Neuron]
         last: bool
-    
+
     Net* = ref object
         layers: seq[Layer]
         fitness: float
+        correct, weights: int
 
     Series* = ref object
         xs: seq[seq[float]]
@@ -32,16 +33,26 @@ type
 
     Iris* = ref object of Dataset
 
+proc echoJsonDebug(o: any) =
+    echo pretty(%o)
+
 proc writeJsonDebug(o: any) =
     const path = "/Users/phj/Desktop/nim_write.txt"
     let file = newFileStream(path, FileMode.fmWrite)
     if file != nil:
         file.writeLine(pretty(%o))
 
+proc newSeries(): Series =
+    new result
+    result.xs = newSeq[seq[float]]()
+    result.ys = newSeq[int]()
+
 proc newIris(): Iris =
     new result
     result.inputs = 4
     result.outputs = 3
+    result.test = newSeries()
+    result.train = newSeries()
 
     let map = {
         "Iris-virginica": 0,
@@ -50,13 +61,14 @@ proc newIris(): Iris =
     }.toTable()
 
     const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
+
     var rows = newSeq[string]()
     for line in lines(path):
         rows.add(line)
-
     shuffle(rows)
+
     var xss = newSeq[seq[float]]()
-    var ys = newSeq[int]() 
+    var ys = newSeq[int]()
     for row in rows:
         let dims = row.split(",")
         var xs = newSeq[float]()
@@ -66,8 +78,8 @@ proc newIris(): Iris =
         xss.add(xs)
         ys.add(last)
 
-    let ratio = 0.5
-    let numberOfTraining = toInt(ratio * ys.len.toFloat)
+    let ratioOfTraining = 0.5
+    let numberOfTraining = toInt(ratioOfTraining * ys.len.toFloat)
 
     for i in 0..<ys.len:
         if i < numberOfTraining:
@@ -77,14 +89,12 @@ proc newIris(): Iris =
             result.test.xs.add(xss[i])
             result.test.ys.add(ys[i])
 
-    writeJsonDebug(ys)
-
 func lerp(a, b, p: float): float =
     return a + (b - a) * p
 
-proc newNeuron(nWeights: int): Neuron =
+proc newNeuron(weights: int): Neuron =
     new result
-    for i in 0..<nWeights:
+    for i in 0..<weights:
         result.weights.add(rand(bounds))
     result.bias = rand(bounds)
 
@@ -120,26 +130,27 @@ proc argMax(x: seq[float]): int =
             max = x[i]
             result = i
 
-proc correctPredictions(n: Net, xs: seq[seq[float]], ys: seq[int]): int =
+proc correctPredictions(n: Net, series: Series): int =
     result = 0
-    for i, x in xs:
-        let correct = ys[i]
+    for i, x in series.xs:
+        let correct = series.ys[i]
         let neuralGuess = n.invoke(x)
         let bestGuess = argMax(neuralGuess)
         if bestGuess == correct:
             result += 1
 
-proc computeFitness(n: Net, xs: seq[seq[float]], ys: seq[int], parentInheritance: float, gamma: float) =
-    let correct = n.correctPredictions(xs, ys)
-    let correctFitness = float(correct) / float(xs.len)
+proc computeFitness(n: Net, series: Series, parentInheritance, regularization: float) = 
+    n.correct = n.correctPredictions(series)
+    let correctFitness = n.correct.toFloat / series.ys.len.toFloat
 
     var regularizationLoss = 0.0
-    if gamma != 0:
+    if regularization != 0:
         for layer in n.layers:
             for neuron in layer.neurons:
                 for weight in neuron.weights:
                     regularizationLoss += weight * weight
-    
+    regularizationLoss = (regularizationLoss / n.weights.toFloat) * regularization
+
     let dataloss = 0.0 # todo
 
     let batchFitness = correctFitness - regularizationLoss - dataloss
@@ -148,10 +159,11 @@ proc computeFitness(n: Net, xs: seq[seq[float]], ys: seq[int], parentInheritance
 
 proc newNet(setup: seq[int]): Net =
     new result
-    let lastLayerIdx = setup.len - 2
+    let lastLayerIdx = setup.len-2
     for i in 0..<setup.len-1:
         result.layers.add(newLayer(setup[i], setup[i+1], i == lastLayerIdx))
-    
+        result.weights += (1+setup[i]) * setup[i+1]
+
 proc mutate(x: Neuron, power, frequency: float) =
     for i in 0..<x.weights.len:
         if rand(0.0..1.0) < frequency:
@@ -166,16 +178,19 @@ proc mutate(x: Net, power, frequency: float) =
 
 proc main() =
     randomize()
-    let dataInputs = 3
-    let dataOutputs = 4
-    let n1 = newNet(@[dataInputs, 100, 100, 100, 100, 100, dataOutputs])
-
     let iris = newIris()
 
-    var result = n1.invoke(@[1.0, 2.0, 3.0])
-    #sleep(2000)
-    for i in 0..<10:
-        n1.mutate(1.0, 0.25)
-    #echo result
+    var avg = 0.0
+    const size = 10;
+    for i in 0..<size:
+        let net = newNet(@[iris.inputs, 10, 10, 10, iris.outputs])
+        writeJsonDebug(net)
+        net.computeFitness(iris.train, 0.0, 0.0)
+        let percentage = net.correct / iris.train.xs.len
+        echo "fitness " & $net.fitness
+        echo "percentage correct " & $percentage
+        echo "______"
+        avg += percentage / size
+    echo "average " & $avg
 
 main()
