@@ -6,6 +6,7 @@ import os
 import strutils
 import tables
 import sequtils
+import sugar
 
 const bounds = -1.0..1.0
 
@@ -130,6 +131,16 @@ proc argMax(x: seq[float]): int =
             max = x[i]
             result = i
 
+proc argMaxBy[T, V](s: openArray[T], call: proc(x: T): V): int =
+    var max = call(s[0])
+    var maxIdx = 0
+    for i in 1..<s.len:
+        let value = call(s[i])
+        if value > max:
+            max = value
+            maxIdx = i
+    return maxIdx
+
 proc correctPredictions(n: Net, series: Series): int =
     result = 0
     for i, x in series.xs:
@@ -179,18 +190,32 @@ proc mutate(x: Net, power, frequency: float) =
 proc main() =
     randomize()
     let iris = newIris()
+    const print = false
 
     var avg = 0.0
-    const size = 10;
+    const size = 10000;
+    var nets = newSeq[Net]()
     for i in 0..<size:
         let net = newNet(@[iris.inputs, 10, 10, 10, iris.outputs])
-        writeJsonDebug(net)
+        nets.add(net)
         net.computeFitness(iris.train, 0.0, 0.0)
         let percentage = net.correct / iris.train.xs.len
-        echo "fitness " & $net.fitness
-        echo "percentage correct " & $percentage
-        echo "______"
         avg += percentage / size
+        when print:
+            writeJsonDebug(net)
+            echo "fitness " & $net.fitness
+            echo "percentage correct " & $percentage
+            echo "______"
+
     echo "average " & $avg
+    let bestIdx = nets.argMaxBy(x => x.fitness)
+    let bestNet = nets[bestIdx]
+    echoJsonDebug(bestNet)
+
+    let testPredictions = bestNet.correctPredictions(iris.test)
+    let testPercentage = testPredictions.toFloat / iris.test.xs.len.toFloat
+    echo "test percentage " & $testPercentage
+    
+
 
 main()
