@@ -57,7 +57,7 @@ proc mutate*(x: Net, power, frequency: float) =
             neuron.mutate(power, frequency)
 
 proc pick*(pool: seq[Net], wheel: seq[float]): Net =
-    let sum = wheel[wheel.len-1]
+    let sum = wheel[^1]
     let ran = rand(0.0..sum)
     let idx = wheel.lowerBound(ran, system.cmp[float])
     return pool[idx].deepCopy()
