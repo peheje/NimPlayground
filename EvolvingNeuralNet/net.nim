@@ -2,6 +2,9 @@ import layer
 import neuron
 import datasets
 import helpers
+import algorithm
+import random
+import math
 
 type
     Net* = ref object
@@ -52,3 +55,35 @@ proc mutate*(x: Net, power, frequency: float) =
     for layer in x.layers:
         for neuron in layer.neurons:
             neuron.mutate(power, frequency)
+
+proc pick(pool: seq[Net], wheel: seq[float]): Net =
+    let sum = wheel[wheel.len-1]
+    let ran = rand(0.0..sum)
+    let idx = wheel.lowerBound(ran, system.cmp[float])
+    return pool[idx].deepCopy()
+
+proc crossover*(a: var Net, pool: seq[Net], rate: float, wheel: seq[float]) =
+    let mate = pick(pool, wheel)
+    let crossoverCount = (rate * a.weights.toFloat).toInt-1
+
+    for i in 0..<crossOverCount:
+        let mateRanLayer = rand(0..<mate.layers.len)
+        let mateRanNeuron = rand(0..<mate.layers[mateRanLayer].neurons.len)
+        let mateRanWeight = rand(0..<mate.layers[mateRanLayer].neurons[mateRanNeuron].weights.len)
+
+        let meRanLayer = rand(0..<a.layers.len)
+        let meRanNeuron = rand(0..<a.layers[meRanLayer].neurons.len)
+        let meRanWeight = rand(0..<a.layers[meRanLayer].neurons[meRanNeuron].weights.len)
+
+        let crossoverPower = rand(0.0..1.0)
+        a.layers[meRanLayer].neurons[meRanNeuron].weights[meRanWeight] = 
+            lerp(a.layers[meRanLayer].neurons[meRanNeuron].weights[meRanWeight],
+                 mate.layers[mateRanLayer].neurons[mateRanNeuron].weights[mateRanWeight],
+                 crossoverPower)
+
+proc computeWheel*(pool: seq[Net]): seq[float] =
+    var sum = 0.0
+    result = newSeq[float]()
+    for net in pool:
+        sum += net.fitness
+        result.add(sum)

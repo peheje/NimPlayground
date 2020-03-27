@@ -28,5 +28,5 @@ proc writeJsonDebug*(o: any) =
     if file != nil:
         file.writeLine(pretty(%o))
 
-func lerp(a, b, p: float): float =
+func lerp*(a, b, p: float): float =
     return a + (b - a) * p
