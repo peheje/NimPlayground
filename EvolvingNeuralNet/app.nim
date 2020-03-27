@@ -4,6 +4,7 @@ import helpers
 import datasets
 import json
 import net
+import sequtils
 
 import algorithm
 
@@ -12,59 +13,55 @@ proc main() =
     randomize()
     let iris = newIris()
     const print = false
-    const 
-         parentInheritance = 0.1
-         regularization = 0.0
+    const
+        size = 100
+        generations = 10000
+        parentInheritance = 0.0
+        regularization = 0.0
+        crossoverProbability = 0.1
+        crossoverRate = 0.1
+        crossoverPower = 0.1..1.0
+        mutateProbability = 0.1
+        mutatePower = 0.1
+        mutateFrequency = 0.1
 
-    var avg = 0.0
-    const size = 5;
-    var nets = newSeq[Net]()
+    
+    let setup = @[iris.inputs, 10, 100, 10, iris.outputs]
+    let batch = iris.train  # todo take batch first time?
+
+    var pool = newSeq[Net]()
     for i in 0..<size:
-        let net = newNet(@[iris.inputs, 2, iris.outputs])
-        nets.add(net)
-        net.computeFitness(iris.train, 0.0, 0.0)
+        let net = newNet(setup)
+        pool.add(net)
+        net.computeFitness(batch, parentInheritance, regularization)
+    
+    for j in 0..<generations:
+        let wheel = computeWheel(pool)
+        var nexts = newSeq[Net]()
 
-    var sum = 0.0
-    for i in 0..<size:
-        let val = nets[i].fitness
-        echo val
-        sum += val
+        let bestIdx = pool.argMaxBy(x => x.fitness)
+        let best = pool[bestIdx].deepCopy()
 
-    for i in 0..<10000:
-        let wheel = computeWheel(nets)
+        for i in 1..<size:
+            var next = pick(pool, wheel)
+            if rand(0.0..1.0) < crossoverProbability:
+                next.crossover(pool, crossoverRate, crossoverPower, wheel)
+            if rand(0.0..1.0) < mutateProbability:
+                next.mutate(mutatePower, mutateFrequency)
 
-        # DEBUG START
-        nets[0].fitness = 10000.0
-        nets[0].layers[0].neurons[0].weights[0] = 111.11
+            let batch = iris.train # todo take batch
+            next.computeFitness(batch, parentInheritance, regularization)
+            nexts.add(next)
         
-        nets[1].fitness = 0.0
-        nets[1].layers[0].neurons[0].weights[0] = 999.99
-
-        # DEBUG END
-        for j in 0..<nets.len:
-            nets[j].crossover(nets, 0.5, wheel)
-            nets[j].computeFitness(iris.train, parentInheritance, regularization)
-
+        nexts.add(best)
+        pool = nexts
     
-    echoJsonDebug(nets)
+        if j mod 10 == 0:
+            let bestIdx = pool.argMaxBy(x => x.fitness)
+            let bestNet = pool[bestIdx]
 
-        # let percentage = net.correct / iris.train.xs.len
-        # avg += percentage / size
-        # when print:
-        #     writeJsonDebug(net)
-        #     echo "fitness " & $net.fitness
-        #     echo "percentage correct " & $percentage
-        #     echo "______"
-            
-    when print:
-        echoJsonDebug(bestNet)
-    
-    echo "average " & $avg
-    let bestIdx = nets.argMaxBy(x => x.fitness)
-    let bestNet = nets[bestIdx]
-
-    let testPredictions = bestNet.correctPredictions(iris.test)
-    let testPercentage = testPredictions.toFloat / iris.test.xs.len.toFloat
-    echo "test percentage " & $testPercentage
+            let testPredictions = bestNet.correctPredictions(iris.test)
+            let testPercentage = testPredictions.toFloat / iris.test.xs.len.toFloat
+            echo "test percentage " & $testPercentage
 
 main()
