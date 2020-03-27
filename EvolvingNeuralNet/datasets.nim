@@ -49,7 +49,7 @@ proc newIris*(): Iris =
         xss.add(xs)
         ys.add(last)
 
-    let ratioOfTraining = 0.5
+    let ratioOfTraining = 0.8
     let numberOfTraining = toInt(ratioOfTraining * ys.len.toFloat)
 
     for i in 0..<ys.len:

@@ -49,7 +49,7 @@ proc computeFitness*(n: Net, series: Series, parentInheritance, regularization: 
 
     let batchFitness = correctFitness - regularizationLoss - dataloss
     let parentFitness = n.fitness
-    n.fitness = parentInheritance * parentFitness + batchFitness
+    n.fitness = max(parentInheritance * parentFitness + batchFitness, 0.0)
 
 proc mutate*(x: Net, power, frequency: float) =
     for layer in x.layers:
