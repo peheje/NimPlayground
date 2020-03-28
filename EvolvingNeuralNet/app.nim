@@ -75,4 +75,7 @@ proc main() =
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
             echo "test percentage t" & $testPercentage & " average fitness " & $averageFitness & topText
 
+            if testPercentage >= 0.66:
+                echo "DING DING DING"
+
 main()
