@@ -1,6 +1,7 @@
 import random
 import helpers
 import datasets
+import iris
 import net
 import algorithm
 import sugar
@@ -9,11 +10,11 @@ proc main() =
 
     #randomize()
     const
-        print = false
         size = 20
-        generations = 10_000
-        batchsize = 20
-        trainRatio = 0.5
+        batchsize = 30
+        generations = 4000
+        print = 100
+        trainRatio = 0.90
         parentInheritance = 0.40
         regularization = 1.0
         crossoverProbability = 0.1
@@ -62,7 +63,7 @@ proc main() =
             # echo "mutateProbability" & $mutateProbability
             mutateProbability *= mutateProbabilityDecay
     
-        if j mod 10 == 0:
+        if j mod print == 0:
             let bestIdx = pool.argMaxBy(x => x.fitness)
             let bestNet = pool[bestIdx]
 
