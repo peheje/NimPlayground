@@ -21,7 +21,7 @@ proc main() =
         trainRatio = 0.75
         parentInheritance = 0.9
 
-        testWithTop = 0
+        testWithTop = 2
 
         crossoverProbability = 0.0
         crossoverRate = 0.02

@@ -41,7 +41,7 @@ proc correctPredictions*(nets: seq[Net], series: Series): int =
         let correct = series.ys[i]
         let bestGuessIdx = nets
             .map(n => n.invoke(x))
-            .transpose()    # so we can find the max for the same 
+            .transpose()    # so we can find the max across nets 
             .map(x => max(x))
             .argMax()
         if bestGuessIdx == correct:
