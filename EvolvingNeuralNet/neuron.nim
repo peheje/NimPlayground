@@ -19,8 +19,8 @@ func invoke*(x: Neuron, input: seq[float], lastLayer: bool): float =
     for i in 0..<input.len:
         result += x.weights[i] * input[i]
     if not lastLayer:
-        result = tanh(result) # Tanh
-        #result = max(result, 0.0) # Relu
+        result = max(result, 0.0) # Relu
+        #result = tanh(result) # Tanh
         #result = 1.0 / (1.0 + exp(-result)) # Sigmoid
 
 proc mutate*(x: Neuron, power, frequency: float) =

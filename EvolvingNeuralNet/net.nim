@@ -33,23 +33,11 @@ proc correctPredictions*(n: Net, series: Series): int =
         if bestGuess == correct:
             result += 1
 
-proc computeFitness*(n: Net, series: Series, parentInheritance, regularization: float) = 
-    n.correct = n.correctPredictions(series)
-    let correctFitness = n.correct.toFloat / series.ys.len.toFloat
-
-    var regularizationLoss = 0.0
-    if regularization != 0:
-        for layer in n.layers:
-            for neuron in layer.neurons:
-                for weight in neuron.weights:
-                    regularizationLoss += weight * weight
-    regularizationLoss = (regularizationLoss / n.weights.toFloat) * regularization
-
-    let dataloss = 0.0 # todo
-
-    let batchFitness = correctFitness - regularizationLoss - dataloss
-    let parentFitness = n.fitness
-    n.fitness = max(parentInheritance * parentFitness + batchFitness, 0.0)
+proc computeFitness*(n: Net, series: Series, parentInheritance: float) = 
+    let correct = n.correctPredictions(series)
+    let batchfitness = pow(correct.toFloat, 3.0)
+    n.fitness = max(parentInheritance * n.fitness + batchfitness, 0.0)
+    n.correct = correct
 
 proc mutate*(x: Net, power, frequency: float) =
     for layer in x.layers:

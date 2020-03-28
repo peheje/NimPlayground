@@ -9,7 +9,8 @@ type
 proc newAbalone*(ratioOfTraining: float): Abalone =
     new result
     result.inputs = 8
-    result.outputs = 28
+    #result.outputs = 28
+    result.outputs = 3
     result.test = newSeries()
     result.train = newSeries()
 
@@ -35,8 +36,17 @@ proc newAbalone*(ratioOfTraining: float): Abalone =
         for i in 1..<dims.len-1:
             xs.add(parseFloat(dims[i]))
         let last = dims[^1].parseInt
+
+        var class = -1
+        if last < 9:
+            class = 0
+        elif last < 11:
+            class = 1
+        else:
+            class = 2
+
         xss.add(xs)
-        ys.add(last)
+        ys.add(class)
 
     let numberOfTraining = toInt(ratioOfTraining * ys.len.toFloat)
 

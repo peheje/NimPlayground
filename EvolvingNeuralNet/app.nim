@@ -1,47 +1,47 @@
+#import nimprof
 import random
 import helpers
 import datasets
 import iris
+import abalone
 import net
 import algorithm
+import sequtils
 import sugar
+import math
 
 proc main() =
 
     #randomize()
     const
-        size = 20
-        batchsize = 30
-        generations = 4000
-        print = 100
-        trainRatio = 0.90
-        parentInheritance = 0.40
-        regularization = 1.0
-        crossoverProbability = 0.1
-        crossoverRate = 0.05
+        size = 200
+        batchsize = 20
+        generations = 2000
+        print = 50
+        trainRatio = 0.75
+        parentInheritance = 0.90
+        crossoverProbability = 0.0
+        crossoverRate = 0.0
         crossoverPower = 0.1..1.0
-        mutatePower = 0.5
-        mutateFrequency = 0.1
-        mutateProbabilityDecay = 0.999
-        minMutateProbability = 0.05
 
-    var
-        mutateProbability = 0.8
+    var mutateProbability = 0.20
+    const 
+        mutateFrequency = 0.01
+        mutatePower = 10.0
+        mutateProbabilityDecay = 1.0
+        minimumMutateProbability = 0.01
+    
 
-    let iris = newIris(trainRatio)
-    let setup = @[iris.inputs, 10, 10, 10, iris.outputs]
-    let batch = iris.computeBatch(batchsize)
+    let data = newAbalone(trainRatio)
+    let setup = @[data.inputs, 10, 10, 10, data.outputs]
+    let batch = data.computeBatch(batchsize)
 
     var pool = newSeq[Net]()
     for i in 0..<size:
         let net = newNet(setup)
         pool.add(net)
-        net.computeFitness(batch, parentInheritance, regularization)
+        net.computeFitness(batch, parentInheritance)
     
-    #var copy = pool.deepCopy()
-    #copy.sort((a, b) => cmp(a.fitness, b.fitness), SortOrder.Descending)
-    #echo repr(copy)
-
     for j in 0..<generations:
         let wheel = computeWheel(pool)
         var nexts = newSeq[Net]()
@@ -53,22 +53,24 @@ proc main() =
             if rand(0.0..1.0) < mutateProbability:
                 next.mutate(mutatePower, mutateFrequency)
 
-            let batch = iris.computeBatch(batchsize)
-            next.computeFitness(batch, parentInheritance, regularization)
+            let batch = data.computeBatch(batchsize)
+            next.computeFitness(batch, parentInheritance)
             nexts.add(next)
         
         pool = nexts
 
-        if mutateProbability > minMutateProbability:
-            # echo "mutateProbability" & $mutateProbability
+        if mutateProbability > minimumMutateProbability:
             mutateProbability *= mutateProbabilityDecay
-    
+
         if j mod print == 0:
+
+            #let averageFitness = pool.map(x => x.fitness).sum() / size
+            #echo "average fitness " & $averageFitness
+
             let bestIdx = pool.argMaxBy(x => x.fitness)
             let bestNet = pool[bestIdx]
-
-            let testPredictions = bestNet.correctPredictions(iris.test)
-            let testPercentage = testPredictions.toFloat / iris.test.xs.len.toFloat
+            let testPredictions = bestNet.correctPredictions(data.test)
+            let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
             echo "test percentage " & $testPercentage
 
 main()
