@@ -21,7 +21,7 @@ proc main() =
         trainRatio = 0.75
         parentInheritance = 0.9
 
-        regularization = 0.05
+        regularization = 0.2
 
         testWithTop = 2
 
