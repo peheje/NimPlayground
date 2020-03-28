@@ -10,14 +10,14 @@ proc argMax*[T](x: seq[T]): int =
             max = value
             result = i
 
-proc argMaxBy*[T, V](s: openArray[T], call: proc(x: T): V): int =
+proc argMaxBy*[T, V](s: openArray[T], call: proc(x: T): V): tuple[index: int, value: T] =
     var max = call(s[0])
-    result = 0
+    result = (0, s[0])
     for i in 1..<s.len:
         let value = call(s[i])
         if value > max:
             max = value
-            result = i
+            result = (i, s[i])
 
 proc echoJsonDebug*(o: any) =
     echo pretty(%o)

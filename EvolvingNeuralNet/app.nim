@@ -13,16 +13,16 @@ proc main() =
 
     #randomize()
     const
-        size = 200
+        size = 100
         batchsize = 20
         generations = 2000
         print = 50
         trainRatio = 0.75
         parentInheritance = 0.9
 
-        crossoverProbability = 0.0
-        crossoverRate = 0.02
-        crossoverPower = 0.5
+        crossoverProbability = 0.01
+        crossoverRate = 0.05
+        crossoverPower = 10.0
 
         mutateProbability = 0.20
         mutateRate = 0.01
@@ -56,10 +56,8 @@ proc main() =
         pool = nexts
 
         if j mod print == 0:
-
             let averageFitness = pool.map(x => x.fitness).sum() / size
-            let bestIdx = pool.argMaxBy(x => x.fitness)
-            let bestNet = pool[bestIdx]
+            let (bestIdx, bestNet) = pool.argMaxBy(x => x.fitness)
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
             echo "test percentage " & $testPercentage & " average fitness " & $averageFitness
