@@ -8,6 +8,7 @@ import net
 import sequtils
 import sugar
 import math
+import algorithm
 
 proc main() =
 
@@ -19,6 +20,8 @@ proc main() =
         print = 50
         trainRatio = 0.75
         parentInheritance = 0.9
+
+        testWithTop = 2
 
         crossoverProbability = 0.0
         crossoverRate = 0.02
@@ -56,12 +59,19 @@ proc main() =
         pool = nexts
 
         if j mod print == 0:
+            let topn = pool
+                .orderBy(x => x.fitness)
+                .take(testWithTop)
+
+            let topnCorrections = topn.correctPredictions(data.test)
+            let topPercentage = topnCorrections.toFloat / data.test.xs.len.toFloat
+            echo "test top percentage " & $topPercentage
 
             let averageFitness = pool.map(x => x.fitness).sum() / size
             let bestIdx = pool.argMaxBy(x => x.fitness)
             let bestNet = pool[bestIdx]
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
-            echo "test percentage " & $testPercentage & " average fitness " & $averageFitness
+            #echo "test percentage " & $testPercentage & " average fitness " & $averageFitness
 
 main()

@@ -1,5 +1,7 @@
 import json
 import streams
+import sugar
+import algorithm
 
 proc argMax*[T](x: seq[T]): int =
     var max = x[0]
@@ -30,3 +32,20 @@ proc writeJsonDebug*(o: any) =
 
 func lerp*(a, b, p: float): float =
     return a + (b - a) * p
+
+proc take*[T](s: openArray[T], limit: int): seq[T] =
+    result = newSeq[T]()
+    for i in 0..<limit:
+        result.add(s[i])
+
+proc orderBy*[T, V](s: seq[T], call: proc(x: T): V, order: SortOrder = SortOrder.Descending): seq[T] =
+    var copy = s.deepCopy()
+    copy.sort((a, b) => cmp(call(a), call(b)), order)
+    result = copy
+
+proc transpose*[T](s: seq[seq[T]]): seq[seq[T]] =
+    result = newSeq[seq[T]](s[0].len)
+    for i in 0..<s[0].len:
+        result[i] = newSeq[T](s.len)
+        for j in 0..<s.len:
+            result[i][j] = s[j][i]

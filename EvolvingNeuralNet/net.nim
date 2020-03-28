@@ -5,6 +5,8 @@ import helpers
 import algorithm
 import random
 import math
+import sequtils
+import sugar
 
 type
     Net* = ref object
@@ -31,6 +33,18 @@ proc correctPredictions*(n: Net, series: Series): int =
         let neuralGuess = n.invoke(x)
         let bestGuess = argMax(neuralGuess)
         if bestGuess == correct:
+            result += 1
+
+proc correctPredictions*(nets: seq[Net], series: Series): int =
+    result = 0
+    for i, x in series.xs:
+        let correct = series.ys[i]
+        let bestGuessIdx = nets
+            .map(n => n.invoke(x))
+            .transpose()    # so we can find the max for the same 
+            .map(x => max(x))
+            .argMax()
+        if bestGuessIdx == correct:
             result += 1
 
 proc computeFitness*(n: Net, series: Series, parentInheritance: float) = 
