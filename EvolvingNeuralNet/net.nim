@@ -50,7 +50,7 @@ proc pick*(pool: seq[Net], wheel: seq[float]): Net =
     let idx = wheel.lowerBound(ran, system.cmp[float])
     return pool[idx].deepCopy()
 
-proc crossover*(a: Net, pool: seq[Net], frequency: float, power: HSlice[float, float], wheel: seq[float]) =
+proc crossover*(a: Net, pool: seq[Net], frequency, power: float, wheel: seq[float]) =
     let mate = pick(pool, wheel)
     let crossoverCount = (frequency * a.weights.toFloat).toInt-1
 

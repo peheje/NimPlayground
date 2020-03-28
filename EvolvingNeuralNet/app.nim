@@ -5,7 +5,6 @@ import datasets
 import iris
 import abalone
 import net
-import algorithm
 import sequtils
 import sugar
 import math
@@ -19,19 +18,16 @@ proc main() =
         generations = 2000
         print = 50
         trainRatio = 0.75
-        parentInheritance = 0.90
+        parentInheritance = 0.9
+
         crossoverProbability = 0.0
-        crossoverRate = 0.0
-        crossoverPower = 0.1..1.0
+        crossoverRate = 0.01
+        crossoverPower = 10.0
 
-    var mutateProbability = 0.20
-    const 
-        mutateFrequency = 0.01
+        mutateProbability = 0.20
+        mutateRate = 0.01
         mutatePower = 10.0
-        mutateProbabilityDecay = 1.0
-        minimumMutateProbability = 0.01
     
-
     let data = newAbalone(trainRatio)
     let setup = @[data.inputs, 10, 10, 10, data.outputs]
     let batch = data.computeBatch(batchsize)
@@ -51,7 +47,7 @@ proc main() =
             if rand(0.0..1.0) < crossoverProbability:
                 next.crossover(pool, crossoverRate, crossoverPower, wheel)
             if rand(0.0..1.0) < mutateProbability:
-                next.mutate(mutatePower, mutateFrequency)
+                next.mutate(mutatePower, mutateRate)
 
             let batch = data.computeBatch(batchsize)
             next.computeFitness(batch, parentInheritance)
@@ -59,18 +55,13 @@ proc main() =
         
         pool = nexts
 
-        if mutateProbability > minimumMutateProbability:
-            mutateProbability *= mutateProbabilityDecay
-
         if j mod print == 0:
 
-            #let averageFitness = pool.map(x => x.fitness).sum() / size
-            #echo "average fitness " & $averageFitness
-
+            let averageFitness = pool.map(x => x.fitness).sum() / size
             let bestIdx = pool.argMaxBy(x => x.fitness)
             let bestNet = pool[bestIdx]
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
-            echo "test percentage " & $testPercentage
+            echo "test percentage " & $testPercentage & " average fitness " & $averageFitness
 
 main()
