@@ -1,19 +1,20 @@
 import random
-import sugar
 import helpers
 import datasets
 import net
+import algorithm
+import sugar
 
 proc main() =
 
     #randomize()
-    let iris = newIris()
-    const print = false
-
     const
-        size = 100
-        generations = 10000
-        parentInheritance = 0.10
+        print = false
+        size = 20
+        generations = 10_000
+        batchsize = 20
+        trainRatio = 0.5
+        parentInheritance = 0.40
         regularization = 1.0
         crossoverProbability = 0.1
         crossoverRate = 0.05
@@ -25,8 +26,9 @@ proc main() =
     var
         mutateProbability = 0.8
 
-    let setup = @[iris.inputs, 10, 20, 10, iris.outputs]
-    let batch = iris.train  # todo take batch first time?
+    let iris = newIris(trainRatio)
+    let setup = @[iris.inputs, 10, 10, 10, iris.outputs]
+    let batch = iris.computeBatch(batchsize)
 
     var pool = newSeq[Net]()
     for i in 0..<size:
@@ -34,6 +36,10 @@ proc main() =
         pool.add(net)
         net.computeFitness(batch, parentInheritance, regularization)
     
+    #var copy = pool.deepCopy()
+    #copy.sort((a, b) => cmp(a.fitness, b.fitness), SortOrder.Descending)
+    #echo repr(copy)
+
     for j in 0..<generations:
         let wheel = computeWheel(pool)
         var nexts = newSeq[Net]()
@@ -45,7 +51,7 @@ proc main() =
             if rand(0.0..1.0) < mutateProbability:
                 next.mutate(mutatePower, mutateFrequency)
 
-            let batch = iris.train # todo take batch
+            let batch = iris.computeBatch(batchsize)
             next.computeFitness(batch, parentInheritance, regularization)
             nexts.add(next)
         

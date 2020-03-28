@@ -18,7 +18,15 @@ proc newSeries(): Series =
     result.xs = newSeq[seq[float]]()
     result.ys = newSeq[int]()
 
-proc newIris*(): Iris =
+proc computeBatch*(dataset: Dataset, size: int): Series =
+    let clipped = min(dataset.train.xs.len, size)
+    result = newSeries()
+    for i in 0..<clipped:
+        let r = rand(0..<dataset.train.xs.len)
+        result.xs.add(dataset.train.xs[r])
+        result.ys.add(dataset.train.ys[r])
+
+proc newIris*(ratioOfTraining: float): Iris =
     new result
     result.inputs = 4
     result.outputs = 3
@@ -49,7 +57,6 @@ proc newIris*(): Iris =
         xss.add(xs)
         ys.add(last)
 
-    let ratioOfTraining = 0.8
     let numberOfTraining = toInt(ratioOfTraining * ys.len.toFloat)
 
     for i in 0..<ys.len:
