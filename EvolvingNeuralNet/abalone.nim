@@ -4,22 +4,22 @@ import datasets
 import strutils
 
 type
-    Iris* = ref object of Dataset
+    Abalone* = ref object of Dataset
 
-proc newIris*(ratioOfTraining: float): Iris =
+proc newAbalone*(ratioOfTraining: float): Abalone =
     new result
-    result.inputs = 4
-    result.outputs = 3
+    result.inputs = 8
+    result.outputs = 28
     result.test = newSeries()
     result.train = newSeries()
 
     let map = {
-        "Iris-virginica": 0,
-        "Iris-versicolor": 1,
-        "Iris-setosa": 2
+        "M": -1.0,
+        "F": 0.0,
+        "I": 1.0
     }.toTable()
 
-    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
+    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/abalone.data"
 
     var rows = newSeq[string]()
     for line in lines(path):
@@ -31,9 +31,10 @@ proc newIris*(ratioOfTraining: float): Iris =
     for row in rows:
         let dims = row.split(",")
         var xs = newSeq[float]()
-        for i in 0..<dims.len-1:
+        xs.add(map[dims[0]])
+        for i in 1..<dims.len-1:
             xs.add(parseFloat(dims[i]))
-        let last = map[dims[^1]]
+        let last = dims[^1].parseInt
         xss.add(xs)
         ys.add(last)
 
