@@ -31,7 +31,7 @@ proc main() =
 
         mutateProbability = 0.20
         mutateRate = 0.01
-        mutatePower = 10.0
+        mutatePower = 2.0
     
     let data = newAbalone(trainRatio)
     let setup = @[data.inputs, 10, 10, 10, data.outputs]
