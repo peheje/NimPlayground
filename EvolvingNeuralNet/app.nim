@@ -16,10 +16,12 @@ proc main() =
     const
         size = 200
         batchsize = 20
-        generations = 2000
+        generations = 20000
         print = 50
         trainRatio = 0.75
         parentInheritance = 0.9
+
+        regularization = 0.05
 
         testWithTop = 2
 
@@ -39,7 +41,7 @@ proc main() =
     for i in 0..<size:
         let net = newNet(setup)
         pool.add(net)
-        net.computeFitness(batch, parentInheritance)
+        net.computeFitness(batch, parentInheritance, regularization)
     
     for j in 0..<generations:
         let wheel = computeWheel(pool)
@@ -53,7 +55,7 @@ proc main() =
                 next.mutate(mutatePower, mutateRate)
 
             let batch = data.computeBatch(batchsize)
-            next.computeFitness(batch, parentInheritance)
+            next.computeFitness(batch, parentInheritance, regularization)
             nexts.add(next)
         
         pool = nexts
@@ -71,6 +73,6 @@ proc main() =
             let bestNet = pool[bestIdx]
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
-            echo "test percentage " & $testPercentage & " average fitness " & $averageFitness & topText
+            echo "test percentage t" & $testPercentage & " average fitness " & $averageFitness & topText
 
 main()
