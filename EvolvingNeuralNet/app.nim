@@ -21,8 +21,8 @@ proc main() =
         parentInheritance = 0.9
 
         crossoverProbability = 0.0
-        crossoverRate = 0.01
-        crossoverPower = 10.0
+        crossoverRate = 0.02
+        crossoverPower = 0.5
 
         mutateProbability = 0.20
         mutateRate = 0.01

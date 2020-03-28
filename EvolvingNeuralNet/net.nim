@@ -55,18 +55,14 @@ proc crossover*(a: Net, pool: seq[Net], frequency, power: float, wheel: seq[floa
     let crossoverCount = (frequency * a.weights.toFloat).toInt-1
 
     for i in 0..<crossOverCount:
-        let mateRanLayer = rand(0..<mate.layers.len)
-        let mateRanNeuron = rand(0..<mate.layers[mateRanLayer].neurons.len)
-        let mateRanWeight = rand(0..<mate.layers[mateRanLayer].neurons[mateRanNeuron].weights.len)
-
-        let meRanLayer = rand(0..<a.layers.len)
-        let meRanNeuron = rand(0..<a.layers[meRanLayer].neurons.len)
-        let meRanWeight = rand(0..<a.layers[meRanLayer].neurons[meRanNeuron].weights.len)
+        let rLayer = rand(0..<a.layers.len)
+        let rNeuron = rand(0..<a.layers[rLayer].neurons.len)
+        let rWeigt = rand(0..<a.layers[rLayer].neurons[rNeuron].weights.len)
 
         let crossoverPower = rand(power)
-        a.layers[meRanLayer].neurons[meRanNeuron].weights[meRanWeight] = 
-            lerp(a.layers[meRanLayer].neurons[meRanNeuron].weights[meRanWeight],
-                 mate.layers[mateRanLayer].neurons[mateRanNeuron].weights[mateRanWeight],
+        a.layers[rLayer].neurons[rNeuron].weights[rWeigt] = 
+            lerp(a.layers[rLayer].neurons[rNeuron].weights[rWeigt],
+                 mate.layers[rLayer].neurons[rNeuron].weights[rWeigt],
                  crossoverPower)
 
 proc computeWheel*(pool: seq[Net]): seq[float] =
