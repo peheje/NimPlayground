@@ -22,6 +22,7 @@ proc main() =
         mutatePower = 0.5
         mutateFrequency = 0.1
         mutateProbabilityDecay = 0.999
+        minMutateProbability = 0.05
 
     var
         mutateProbability = 0.8
@@ -57,7 +58,7 @@ proc main() =
         
         pool = nexts
 
-        if mutateProbability > 0.1:
+        if mutateProbability > minMutateProbability:
             # echo "mutateProbability" & $mutateProbability
             mutateProbability *= mutateProbabilityDecay
     
