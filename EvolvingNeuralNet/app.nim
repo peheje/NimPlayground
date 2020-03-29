@@ -14,26 +14,22 @@ proc main() =
 
     #randomize()
     const
-        size = 200
+        size = 2000
         batchsize = 20
         generations = 20000
         print = 50
         trainRatio = 0.75
         parentInheritance = 0.9
-
-        regularization = 0.2
-
-        testWithTop = 2
-
-        crossoverProbability = 0.0
-        crossoverRate = 0.02
-        crossoverPower = 0.5
-
+        regularization = 0.8
+        testWithTop = 0
         mutateProbability = 0.20
         mutateRate = 0.01
         mutatePower = 2.0
+        crossoverProbability = 0.0
+        crossoverRate = 0.02
+        crossoverPower = 0.5
     
-    let data = newAbalone(trainRatio)
+    let data = newIris(trainRatio)
     let setup = @[data.inputs, 10, 10, 10, data.outputs]
     let batch = data.computeBatch(batchsize)
 
@@ -74,8 +70,5 @@ proc main() =
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
             echo "test percentage t" & $testPercentage & " average fitness " & $averageFitness & topText
-
-            if testPercentage >= 0.66:
-                echo "DING DING DING"
 
 main()
