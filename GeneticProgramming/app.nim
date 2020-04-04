@@ -2,6 +2,7 @@ import strutils
 import math
 import random
 import sugar
+import strformat
 
 type
     Node = ref object
@@ -40,7 +41,7 @@ proc print(node: Node, s: int = 0) =
 
 proc randomNode(ops: seq[Operation], leaf: bool = false, valueRange: HSlice[float, float]): Node =
     if leaf:
-        result = Node(op: ops.sample(), value: rand(valueRange))
+        result = Node(op: ops[0], value: rand(valueRange))
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
@@ -52,6 +53,21 @@ proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0)
     if not node.op.unary:
         randomTree(ops, node.right, max, counter + 1)
 
+proc toEquation(n: Node, s: var string, depth: int = 0) =
+    let sign = n.op.sign
+    if n.right != nil and n.right.op.sign == "val":
+        s &= fmt"({n.left.value} {sign} {n.right.value})"
+    elif n.right != nil and n.left != nil:
+        if depth != 0:
+            s &= "("
+        if n.left != nil:
+            n.left.toEquation(s, depth + 1)
+        s &= fmt" {sign} "
+        if n.right != nil:
+            n.right.toEquation(s, depth + 1)
+        if depth != 0:
+            s &= ")"
+
 randomize()
 
 var operations = newSeq[Operation]()
@@ -60,18 +76,28 @@ let addOp = operations.add("+", false, (a, b) => a.eval() + b.eval())
 let subOp = operations.add("-", false, (a, b) => a.eval() - b.eval())
 let mulOp = operations.add("*", false, (a, b) => a.eval() * b.eval())
 let divOp = operations.add("/", false, (a, b) => a.eval() / b.eval())
-let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
+#let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
 
 # Example data for (2.2 − (2/11)) + (7*cos(0.5)) = 8.16125975141442719463
-let root = Node(op: addOp)
-root.right = Node(op: mulOp)
-root.right.left = Node(op: valOp, value: 7.0)
-root.right.right = Node(op: cosOp)
-root.right.right.left = Node(op: valOp, value: 0.5)
-root.left = Node(op: subOp)
-root.left.left = Node(op: valOp, value: 2.2)
-root.left.right = Node(op: divOp)
-root.left.right.left = Node(op: valOp, value: 2.0)
-root.left.right.right = Node(op: valOp, value: 11.0)
-root.print()
-echo root.eval()
+#let root = Node(op: addOp)
+#root.right = Node(op: mulOp)
+#root.right.left = Node(op: valOp, value: 7.0)
+#root.right.right = Node(op: cosOp)
+#root.right.right.left = Node(op: valOp, value: 0.5)
+#root.left = Node(op: subOp)
+#root.left.left = Node(op: valOp, value: 2.2)
+#root.left.right = Node(op: divOp)
+#root.left.right.left = Node(op: valOp, value: 2.0)
+#root.left.right.right = Node(op: valOp, value: 11.0)
+#root.print()
+#echo root.eval()
+
+var tree = Node()
+randomTree(operations, tree, 3)
+
+tree.print()
+echo tree.eval()
+
+var equation = ""
+tree.toEquation(equation)
+echo equation
