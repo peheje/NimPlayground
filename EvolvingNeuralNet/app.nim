@@ -8,16 +8,15 @@ import net
 import sequtils
 import sugar
 import math
-import algorithm
 
 proc main() =
 
     #randomize()
     const
-        size = 2000
+        size = 200
         batchsize = 20
-        generations = 20000
-        print = 50
+        generations = 2000
+        print = 100
         trainRatio = 0.75
         parentInheritance = 0.9
         regularization = 0.8
@@ -29,7 +28,7 @@ proc main() =
         crossoverRate = 0.02
         crossoverPower = 0.5
     
-    let data = newIris(trainRatio)
+    let data = newAbalone(trainRatio)
     let setup = @[data.inputs, 10, 10, 10, data.outputs]
     let batch = data.computeBatch(batchsize)
 
@@ -70,5 +69,4 @@ proc main() =
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
             echo "test percentage t" & $testPercentage & " average fitness " & $averageFitness & topText
-
 main()

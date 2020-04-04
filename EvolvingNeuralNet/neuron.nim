@@ -8,6 +8,12 @@ type
         weights*: seq[float]
         bias*: float
 
+proc newNeuron*(n: Neuron): Neuron =
+    new result
+    result.bias = n.bias
+    for weight in n.weights:
+        result.weights.add(weight)
+
 proc newNeuron*(weights: int): Neuron =
     new result
     for i in 0..<weights:

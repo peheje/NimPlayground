@@ -5,6 +5,12 @@ type
         neurons*: seq[Neuron]
         last*: bool
 
+proc newLayer*(l: Layer): Layer =
+    new result
+    result.last = l.last
+    for neuron in l.neurons:
+        result.neurons.add(newNeuron(neuron))
+
 proc newLayer*(previousInputSize, size: int, last: bool): Layer =
     new result
     for i in 0..<size:

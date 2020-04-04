@@ -14,6 +14,14 @@ type
         fitness*: float
         correct*, weights*: int
 
+proc newNet*(n: Net): Net =
+    new result
+    result.fitness = n.fitness
+    result.correct = n.correct
+    result.weights = n.weights
+    for layer in n.layers:
+        result.layers.add(newLayer(layer))
+
 proc newNet*(setup: seq[int]): Net =
     new result
     let lastLayerIdx = setup.len-2
@@ -72,7 +80,8 @@ proc pick*(pool: seq[Net], wheel: seq[float]): Net =
     let sum = wheel[^1]
     let ran = rand(0.0..sum)
     let idx = wheel.lowerBound(ran, system.cmp[float])
-    return pool[idx].deepCopy()
+    return newNet(pool[idx])
+    #return pool[idx].deepCopy()
 
 proc crossover*(a: Net, pool: seq[Net], frequency, power: float, wheel: seq[float]) =
     let mate = pick(pool, wheel)
