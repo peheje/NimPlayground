@@ -39,19 +39,22 @@ proc print(node: Node, s: int = 0) =
         echo node.op.sign
     print(node.left, s + 6)
 
-proc randomNode(ops: seq[Operation], leaf: bool = false, valueRange: HSlice[float, float]): Node =
+proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int, left: bool): Node =
+    let leaf = depth == max
+    let penultimate = depth == max - 1
+
     if leaf:
-        result = Node(op: ops[0], value: rand(valueRange))
+        result = Node(op: ops[0], value: rand(-10.0..10.0))
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
-proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0) =
-    node = randomNode(ops, max == counter, -10.0..10.0)
+proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0, parent: Operation = nil, left: bool = false) =
+    node = randomNode(ops, parent, counter, max, left)
     if counter >= max:
         return
-    randomTree(ops, node.left, max, counter + 1)
+    randomTree(ops, node.left, max, counter + 1, node.op, true)
     if not node.op.unary:
-        randomTree(ops, node.right, max, counter + 1)
+        randomTree(ops, node.right, max, counter + 1, node.op, false)
 
 proc toEquation(n: Node, s: var string, depth: int = 0) =
     let sign = n.op.sign
@@ -76,36 +79,27 @@ proc toEquation(n: Node, s: var string, depth: int = 0) =
             n.left.toEquation(s, depth + 1)
         s &= ")"
 
-randomize()
+proc main() =
+    randomize()
+    var operations = newSeq[Operation]()
+    let valOp = operations.add("val", false, (a, b) => a.value)
+    let addOp = operations.add("+", false, (a, b) => a.eval() + b.eval())
+    let subOp = operations.add("-", false, (a, b) => a.eval() - b.eval())
+    let mulOp = operations.add("*", false, (a, b) => a.eval() * b.eval())
+    let divOp = operations.add("/", false, (a, b) => a.eval() / b.eval())
+    let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
+    let sinOp = operations.add("sin", true, (a, b) => sin(a.eval()))
+    #let sqrtOp = operations.add("sqrt", true, (a, b) => sqrt(a.eval()))    This requires abs to be put after as left branch
+    #let absOp = operations.add("abs", true, (a, b) => abs(a.eval()))
 
-var operations = newSeq[Operation]()
-let valOp = operations.add("val", false, (a, b) => a.value)
-let addOp = operations.add("+", false, (a, b) => a.eval() + b.eval())
-let subOp = operations.add("-", false, (a, b) => a.eval() - b.eval())
-let mulOp = operations.add("*", false, (a, b) => a.eval() * b.eval())
-let divOp = operations.add("/", false, (a, b) => a.eval() / b.eval())
-let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
+    for i in 0..<100_000:
+        var tree = Node()
+        randomTree(operations, tree, 7)
+        var equation = ""
+        tree.toEquation(equation)
 
-# Example data for (2.2 − (2/11)) + (7*cos(0.5)) = 8.16125975141442719463
-#let root = Node(op: addOp)
-#root.right = Node(op: mulOp)
-#root.right.left = Node(op: valOp, value: 7.0)
-#root.right.right = Node(op: cosOp)
-#root.right.right.left = Node(op: valOp, value: 0.5)
-#root.left = Node(op: subOp)
-#root.left.left = Node(op: valOp, value: 2.2)
-#root.left.right = Node(op: divOp)
-#root.left.right.left = Node(op: valOp, value: 2.0)
-#root.left.right.right = Node(op: valOp, value: 11.0)
-#root.print()
-#echo root.eval()
+        #tree.print()
+        #echo equation
+        #echo tree.eval()
 
-var tree = Node()
-randomTree(operations, tree, 3)
-
-tree.print()
-echo tree.eval()
-
-var equation = ""
-tree.toEquation(equation)
-echo equation
+main()
