@@ -12,7 +12,7 @@ proc argMax*[T](x: seq[T]): int =
             max = value
             result = i
 
-proc argMaxBy*[T, V](s: openArray[T], call: proc(x: T): V): int =
+proc argMaxBy*[T, V](s: openArray[T], call: T -> V): int =
     var max = call(s[0])
     result = 0
     for i in 1..<s.len:
@@ -38,7 +38,7 @@ proc take*[T](s: openArray[T], limit: int): seq[T] =
     for i in 0..<limit:
         result.add(s[i])
 
-proc orderBy*[T, V](s: seq[T], call: proc(x: T): V, order: SortOrder = SortOrder.Descending): seq[T] =
+proc orderBy*[T, V](s: seq[T], call: T -> V, order: SortOrder = SortOrder.Descending): seq[T] =
     var copy = s.deepCopy()
     copy.sort((a, b) => cmp(call(a), call(b)), order)
     result = copy
