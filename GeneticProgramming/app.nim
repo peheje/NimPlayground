@@ -70,7 +70,10 @@ proc toEquation(n: Node, s: var string, depth: int = 0) =
                 s &= ")"
     else:
         s &= fmt"{sign}("
-        n.left.toEquation(s, depth + 1)
+        if n.right == nil and n.left != nil and n.left.op.sign == "val":
+            s &= fmt"{n.left.value}"
+        else:
+            n.left.toEquation(s, depth + 1)
         s &= ")"
 
 randomize()
