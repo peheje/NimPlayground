@@ -57,16 +57,21 @@ proc toEquation(n: Node, s: var string, depth: int = 0) =
     let sign = n.op.sign
     if n.right != nil and n.right.op.sign == "val":
         s &= fmt"({n.left.value} {sign} {n.right.value})"
-    elif n.right != nil and n.left != nil:
-        if depth != 0:
-            s &= "("
-        if n.left != nil:
-            n.left.toEquation(s, depth + 1)
-        s &= fmt" {sign} "
-        if n.right != nil:
-            n.right.toEquation(s, depth + 1)
-        if depth != 0:
-            s &= ")"
+    elif not n.op.unary:
+        if n.right != nil and n.left != nil:
+            if depth != 0:
+                s &= "("
+            if n.left != nil:
+                n.left.toEquation(s, depth + 1)
+            s &= fmt" {sign} "
+            if n.right != nil:
+                n.right.toEquation(s, depth + 1)
+            if depth != 0:
+                s &= ")"
+    else:
+        s &= fmt"{sign}("
+        n.left.toEquation(s, depth + 1)
+        s &= ")"
 
 randomize()
 
@@ -76,7 +81,7 @@ let addOp = operations.add("+", false, (a, b) => a.eval() + b.eval())
 let subOp = operations.add("-", false, (a, b) => a.eval() - b.eval())
 let mulOp = operations.add("*", false, (a, b) => a.eval() * b.eval())
 let divOp = operations.add("/", false, (a, b) => a.eval() / b.eval())
-#let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
+let cosOp = operations.add("cos", true, (a, b) => cos(a.eval()))
 
 # Example data for (2.2 − (2/11)) + (7*cos(0.5)) = 8.16125975141442719463
 #let root = Node(op: addOp)
