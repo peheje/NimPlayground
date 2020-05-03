@@ -78,11 +78,10 @@ proc main() =
       when log_csv:
         file.writeLine($g & "," & $mean)
 
-  echo "best ", pop[scores.minIndex()]
-
   when log_csv:
     file.close()
 
+  echo "best ", pop[scores.minIndex()]
   echo "time taken: ", cpuTime() - start
 
 main()
