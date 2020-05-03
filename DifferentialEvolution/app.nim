@@ -1,9 +1,9 @@
-import math
 import random
 import problems
 import streams
 import times
 import sequtils
+import stats
 # import nimprof
 
 # nim c -r -d=danger -l=-flto --passC:-ffast-math app.nim
@@ -21,7 +21,6 @@ proc main() =
     popsize = 200
     mutate_range = 0.2..0.95
     crossover_range = 0.1..1.0
-    popsize_float = popsize.toFloat
 
   when log_csv:
     # Open file for writing
@@ -70,11 +69,9 @@ proc main() =
         scores[i] = score_trial
 
     if g mod print == 0 or g == generations-1:
-      let mean = scores.sum() / popsize_float
-      echo "generation mean ", mean
-      echo "generation best ", scores.min()
       echo "generation ", g
-
+      echo "generation mean ", scores.mean()
+      echo "generation best ", scores.min()
       when log_csv:
         file.writeLine($g & "," & $mean)
 
