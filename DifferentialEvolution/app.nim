@@ -1,7 +1,6 @@
 import math
 import random
 import problems
-import helpers
 import streams
 import times
 import sequtils
@@ -79,8 +78,7 @@ proc main() =
       when log_csv:
         file.writeLine($g & "," & $mean)
 
-  #let best_idx = scores.arg_min()
-  #echo "best ", pop[best_idx]
+  echo "best ", pop[scores.minIndex()]
 
   when log_csv:
     file.close()

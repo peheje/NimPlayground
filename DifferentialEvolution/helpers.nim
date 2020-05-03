@@ -4,13 +4,6 @@ type
     Point* = object
         x*, y*: float
 
-proc arg_min*(x: openarray[float]): int =
-    var smallest = float.high
-    for i in 0..<len(x):
-        if x[i] < smallest:
-            smallest = x[i]
-            result = i
-
 proc read_xy*(path: string): seq[Point] =
     let lines = readFile(path).split("\n")
     result = newSeq[Point]()
