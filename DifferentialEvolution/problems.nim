@@ -35,7 +35,7 @@ proc f1*(x: openarray[float]): float =
     var s = 0.0
     for i in 0..<len(x):
         s += x[i]*x[i]
-    return abs(s)
+    return s
 
 proc f2*(x: openarray[float]): float =
     var
@@ -108,11 +108,11 @@ proc horses_and_jockeys*(x: openarray[float]): float =
         heads = horses + jockeys
     result = abs(36-heads) + abs(100-legs)
 
-let data = read_xy("data.txt")
+#let data = read_xy("data.txt")
 
-proc poly_reg*(c: openArray[float]): float =
-    # poly_reg with two coefficients are linear-regression
-    result = 0.0
-    for point in data:
-        let err = point.y - horner(c, point.x)
-        result += err*err
+#proc poly_reg*(c: openArray[float]): float =
+#    # poly_reg with two coefficients are linear-regression
+#    result = 0.0
+#    for point in data:
+#        let err = point.y - horner(c, point.x)
+#        result += err*err
