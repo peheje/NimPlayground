@@ -6,7 +6,7 @@ import streams
 import times
 # import nimprof
 
-# nim c -r -d:release -d:danger -l:-flto app.nim
+# nim c -r -d=danger -l=-flto --passC:-ffast-math app.nim
 
 proc main() =
 
