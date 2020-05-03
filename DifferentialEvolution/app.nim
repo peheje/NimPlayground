@@ -4,6 +4,7 @@ import problems
 import helpers
 import streams
 import times
+import sequtils
 # import nimprof
 
 # nim c -r -d=danger -l=-flto --passC:-ffast-math app.nim
@@ -35,15 +36,12 @@ proc main() =
   var
     crossover = 0.9
     mutate = 0.4
-    scores: array[popsize, float]
     trial = newSeq[float](params)
-    pop = newSeq[seq[float]](popsize)
+    scores: array[popsize, float]
+    pop = newSeqWith(popsize, newSeqWith(params, rand(bounds)))
 
-  # Init population
+  # Init scores
   for i in 0..<popsize:
-    pop[i] = newSeq[float](params)
-    for j in 0..<params:
-      pop[i][j] = rand(bounds)
     scores[i] = optimizer(pop[i])
 
   # For each generation
