@@ -64,7 +64,13 @@ const
 [1079.999993591275, 50.00000089010068]
 You do not spend equal money on A and H: E=3H−1720H2 so the maximum is at H=1080, plug back in for A=50.
 
-The algorithm by no means guarantees that this is the best solution
+The algorithm by no means guarantees that this is the best solution.
+
+Try it:
+1. Clone the repo
+2. Install Nim
+3. Go to "DifferentialEvolution" folder
+4. Type in your terminal ```nim c -r -d=danger -l=-flto --passC:-ffast-math app.nim```
 
 **Evolving neural nets**
 
