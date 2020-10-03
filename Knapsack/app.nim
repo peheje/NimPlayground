@@ -1,14 +1,18 @@
 import random
 import sequtils
 import marshal
+import algorithm
+import json
 
 const
     knapsackCapacity = 200
     boxWeightRange = 1..10
-    boxWorthRange = 1..100
+    boxWorthRange = 50..100
     boxCount = 100
-    generations = 1000
+
+    generations = 10
     populationSize = 200
+    initialPickRate = 0.01
     mutateRate = 0.05
     crossoverRate = 0.5
 
@@ -40,7 +44,7 @@ proc assignScore(choice: Choice, boxes: seq[Box]) =
 
 proc newRandomChoice(boxes: seq[Box]): Choice = 
     result = Choice()
-    result.selections = newSeqWith(boxes.len, rand(1.0) < 0.5)
+    result.selections = newSeqWith(boxes.len, rand(1.0) < initialPickRate)
     result.assignScore(boxes)
 
 proc pick(population: seq[Choice]): Choice =
@@ -61,7 +65,6 @@ proc crossover(choice: Choice, population: seq[Choice]) =
         let fromMate = choice.selections.len div 2
         let fromSelf = choice.selections.len - fromMate
 
-        echo "fromMate: ", fromMate, " fromSelf: ", fromSelf
         assert fromMate + fromSelf == choice.selections.len
 
         for i in 0..<fromMate:
@@ -81,7 +84,6 @@ proc main() =
 
     # Create population
     var population = newSeqWith(populationSize, newRandomChoice(boxes))
-    echo population.mapIt(it.score)
 
     # Which boxes do we put into knapsack to maximize worth?
     for g in 0..<generations:
@@ -92,8 +94,14 @@ proc main() =
             choice.crossover(newPopulation)
             choice.mutate()
 
-        echo newPopulation.mapIt(it.score)
+        echo newPopulation.mapIt(it.score).max()
         population = newPopulation
+    
+
+
+    let best = population.mapIt(it.score).minIndex()
+    echo "boxes: ", pretty(%boxes)
+    echo "best: ", pretty(%population[best])
 
 
 
