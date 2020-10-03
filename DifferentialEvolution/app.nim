@@ -2,7 +2,7 @@ import random
 import problems
 import streams
 import times
-import sequtils
+im  port sequtils
 import stats
 # import nimprof
 
