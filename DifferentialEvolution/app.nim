@@ -35,7 +35,7 @@ proc main() =
     crossover = 0.9
     mutate = 0.4
     trial = newSeq[float](params)
-    scores: array[popsize, float]
+    scores = newSeq[float](popsize)
     pop = newSeqWith(popsize, newSeqWith(params, rand(bounds)))
 
   # Init scores
@@ -48,7 +48,7 @@ proc main() =
     mutate = rand(mutate_range)
 
     for i in 0..<popsize:
-      # Get three others
+      # Get three others, fast than .sample
       let
         x0 = pop[rand(popsize-1)]
         x1 = pop[rand(popsize-1)]
