@@ -20,6 +20,8 @@ proc eval(node: Node): float =
         return
     elif node.op.sign == "val":
         return node.value
+    elif node.op.unary:
+        return node.op.eval(node.left, nil)
     return node.op.eval(node.left, node.right)
 
 proc print(node: Node, indent: int = 0) =
@@ -39,7 +41,10 @@ proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
     let leaf = depth == max
 
     if leaf:
-        result = Node(op: ops[0], value: rand(-10.0..10.0))
+        if parent.sign == "sqrt":
+            result = Node(op: ops[0], value: rand(0.0..10.0))
+        else:
+            result = Node(op: ops[0], value: rand(-10.0..10.0))
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
@@ -83,22 +88,26 @@ proc main() =
     operations.add(Operation(sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
     operations.add(Operation(sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
     operations.add(Operation(sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
-
     operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
     operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+    operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
+    operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
 
-    # These needs work:
-    #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
-    #operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
-
-    for i in 0..<1_000_000:
+    for i in 0..<100:
         var tree = Node()
-        randomTree(operations, tree, 5)
+        randomTree(operations, tree, 4)
         var equation = ""
         tree.toEquation(equation)
 
         #tree.print()
         #echo equation
-        #echo tree.eval()
+        let e = tree.eval()
+        echo e
+        echo e.classify
+
+
+        if e.classify == fcNan:
+            echo equation
+            tree.print
 
 main()
