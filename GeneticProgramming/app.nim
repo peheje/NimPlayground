@@ -5,15 +5,15 @@ import sugar
 import strformat
 
 type
-    Node = ref object
-        left, right: Node
-        op: Operation
+    Node[T] = ref object
+        left, right: Node[T]
+        op: Operation[T]
         value: float
     
-    Operation = ref object
+    Operation[T] = ref object
         sign: string
         unary: bool
-        eval: proc(a, b: Node): float
+        eval: proc(a, b: Node[T]): T
 
 proc eval(node: Node): float =
     if node == nil:
@@ -37,19 +37,19 @@ proc print(node: Node, indent: int = 0) =
         echo node.op.sign
     print(node.left, indent + 6)
 
-proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
+proc randomNode[T](ops: seq[Operation[T]], parent: Operation[T], depth, max: int): Node[T] =
     let leaf = depth == max
 
     if leaf:
         if parent.sign == "sqrt":
-            result = Node(op: ops[0], value: rand(0.0..10.0))
+            result = Node[T](op: ops[0], value: rand(0.0..10.0))
         else:
-            result = Node(op: ops[0], value: rand(-10.0..10.0))
+            result = Node[T](op: ops[0], value: rand(-10.0..10.0))
     else:
-        result = Node(op: ops[rand(1..<ops.len)])
+        result = Node[T](op: ops[rand(1..<ops.len)])
 
-proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0, parent: Operation = nil) =
-    node = randomNode(ops, parent, counter, max)
+proc randomTree[T](ops: seq[Operation[T]], node: var Node[T], max: int, counter: int = 0, parent: Operation[T] = nil) =
+    node = randomNode[T](ops, parent, counter, max)
     if counter >= max:
         return
     randomTree(ops, node.left, max, counter + 1, node.op)
@@ -79,25 +79,25 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
             left.toEquation(eq, depth + 1)
         eq &= ")"
 
-proc main() =
+proc main[T]() =
     randomize()
-    var operations = newSeq[Operation]()
+    var operations = newSeq[Operation[T]]()
 
-    operations.add(Operation(sign: "val", unary: false, eval: (a, b) => a.value))
-    operations.add(Operation(sign: "+", unary: false, eval: (a, b) => a.eval() + b.eval()))
-    operations.add(Operation(sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
-    operations.add(Operation(sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
-    operations.add(Operation(sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
+    operations.add(Operation[T](sign: "val", unary: false, eval: (a, b) => a.value))
+    operations.add(Operation[T](sign: "+", unary: false, eval: (a, b) => a.eval() + b.eval()))
+    operations.add(Operation[T](sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
+    operations.add(Operation[T](sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
+    operations.add(Operation[T](sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
     
-    operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
+    operations.add(Operation[T](sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
 
-    operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
-    operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+    operations.add(Operation[T](sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
+    operations.add(Operation[T](sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
 
     #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
 
     for i in 0..<1000:
-        var tree = Node()
+        var tree = Node[T]()
         randomTree(operations, tree, 4)
         #tree.print()
 
@@ -107,5 +107,4 @@ proc main() =
         echo equation
         echo "_____"
 
-
-main()
+main[float]()
