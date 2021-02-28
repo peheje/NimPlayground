@@ -41,10 +41,7 @@ proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
     let leaf = depth == max
 
     if leaf:
-        if parent.sign == "sqrt":
-            result = Node(op: ops[0], value: rand(0.0..10.0))
-        else:
-            result = Node(op: ops[0], value: rand(-10.0..10.0))
+        result = Node(op: ops[0], value: rand(-10.0..10.0))
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
@@ -81,31 +78,30 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
 
 proc main() =
     randomize()
-    var operations = newSeq[Operation]()
+    var ops = newSeq[Operation]()
 
-    operations.add(Operation(sign: "val", unary: false, eval: (a, b) => a.value))
-    operations.add(Operation(sign: "+", unary: false, eval: (a, b) => a.eval() + b.eval()))
-    operations.add(Operation(sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
-    operations.add(Operation(sign: "*", unary: false, eval: (a, b) => a.eval() * b.eval()))
-    operations.add(Operation(sign: "/", unary: false, eval: (a, b) => a.eval() / b.eval()))
+    ops.add(Operation(sign: "val", eval: (a, b) => a.value))
+    ops.add(Operation(sign: "+", eval: (a, b) => a.eval() + b.eval()))
+    ops.add(Operation(sign: "-", eval: (a, b) => a.eval() - b.eval()))
+    ops.add(Operation(sign: "*", eval: (a, b) => a.eval() * b.eval()))
+    ops.add(Operation(sign: "/", eval: (a, b) => a.eval() / b.eval()))
+    ops.add(Operation(sign: "abs", eval: (a, b) => abs(a.eval()), unary: true))
+    #ops.add(Operation(sign: "cos", eval: (a, b) => cos(a.eval()), unary: true))
+    #ops.add(Operation(sign: "sin", eval: (a, b) => sin(a.eval()), unary: true))
+    #ops.add(Operation(sign:"sqrt", eval: (a, b) => sqrt(a.eval()), unary: true))
 
-    operations.add(Operation(sign: "abs", unary: true, eval: (a, b) => abs(a.eval())))
-
-    operations.add(Operation(sign: "cos", unary: true, eval: (a, b) => cos(a.eval())))
-    operations.add(Operation(sign: "sin", unary: true, eval: (a, b) => sin(a.eval())))
-
-    #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
-
+    const print = false
     for i in 0..<1000:
         var tree = Node()
-        randomTree(operations, tree, 4)
+        randomTree(ops, tree, 4)
         #tree.print()
 
-        echo tree.eval
-        var equation = ""
-        tree.toEquation(equation)
-        echo equation
-        echo "_____"
+        when print:
+            echo tree.eval
+            var equation = ""
+            tree.toEquation(equation)
+            echo equation
+            echo "_____"
 
 
 main()
