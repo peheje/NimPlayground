@@ -51,27 +51,24 @@ proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0,
     if not node.op.unary:
         randomTree(ops, node.right, max, counter + 1, node.op)
 
-proc toEquation(n: Node, s: var string, depth: int = 0) =
-    let sign = n.op.sign
-    if n.right != nil and n.right.op.sign == "val":
-        s &= fmt"({n.left.value} {sign} {n.right.value})"
-    elif not n.op.unary:
-        if n.right != nil and n.left != nil:
-            if depth != 0:
-                s &= "("
-            if n.left != nil:
-                n.left.toEquation(s, depth + 1)
+proc toEquation(node: Node, s: var string, depth: int = 0) =
+    let sign = node.op.sign
+    let right = node.right
+    let left = node.left
+    
+    if right != nil and right.op.sign == "val":
+        s &= fmt"({left.value} {sign} {right.value})"
+    elif not node.op.unary:
+        if right != nil and left != nil:
+            if depth != 0: s &= "("
+            left.toEquation(s, depth + 1)
             s &= fmt" {sign} "
-            if n.right != nil:
-                n.right.toEquation(s, depth + 1)
-            if depth != 0:
-                s &= ")"
+            right.toEquation(s, depth + 1)
+            if depth != 0: s &= ")"
     else:
         s &= fmt"{sign}("
-        if n.right == nil and n.left != nil and n.left.op.sign == "val":
-            s &= fmt"{n.left.value}"
-        else:
-            n.left.toEquation(s, depth + 1)
+        if left.op.sign == "val": s &= fmt"{left.value}"
+        else: left.toEquation(s, depth + 1)
         s &= ")"
 
 proc main() =
@@ -84,19 +81,28 @@ proc main() =
     operations.add(Operation(sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
     operations.add(Operation(sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
 
-    #operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
-    #operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+    operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
+    operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+
+    # These needs work:
     #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
     #operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
 
-    for i in 0..<1:
+    for i in 0..<1_000_000:
         var tree = Node()
-        randomTree(operations, tree, 4)
+        randomTree(operations, tree, 5)
         var equation = ""
         tree.toEquation(equation)
 
-        tree.print()
-        echo equation
-        echo tree.eval()
+        let u = tree.eval()
+
+        if i mod 100000 == 0:
+            echo i
+            echo u
+            echo equation
+
+        #tree.print()
+        #echo equation
+        #echo tree.eval()
 
 main()
