@@ -9,7 +9,7 @@ type
         left, right: Node
         op: Operation
         value: float
-    
+
     Operation = ref object
         sign: string
         unary: bool
@@ -60,7 +60,7 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
     let sign = node.op.sign
     let right = node.right
     let left = node.left
-    
+
     if right != nil and right.op.sign == "val":
         eq &= fmt"({left.value} {sign} {right.value})"
     elif not node.op.unary:
@@ -86,13 +86,13 @@ proc main() =
     operations.add(Operation(sign: "val", unary: false, eval: (a, b) => a.value))
     operations.add(Operation(sign: "+", unary: false, eval: (a, b) => a.eval() + b.eval()))
     operations.add(Operation(sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
-    operations.add(Operation(sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
-    operations.add(Operation(sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
-    
-    operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
+    operations.add(Operation(sign: "*", unary: false, eval: (a, b) => a.eval() * b.eval()))
+    operations.add(Operation(sign: "/", unary: false, eval: (a, b) => a.eval() / b.eval()))
 
-    operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
-    operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+    operations.add(Operation(sign: "abs", unary: true, eval: (a, b) => abs(a.eval())))
+
+    operations.add(Operation(sign: "cos", unary: true, eval: (a, b) => cos(a.eval())))
+    operations.add(Operation(sign: "sin", unary: true, eval: (a, b) => sin(a.eval())))
 
     #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
 
