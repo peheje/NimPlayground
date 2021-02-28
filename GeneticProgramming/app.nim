@@ -88,26 +88,24 @@ proc main() =
     operations.add(Operation(sign: "-", unary: false, eval: (a, b) => a.eval() - b.eval()))
     operations.add(Operation(sign:"*", unary: false, eval: (a, b) => a.eval() * b.eval()))
     operations.add(Operation(sign:"/", unary: false, eval: (a, b) => a.eval() / b.eval()))
-    operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
-    operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
-    operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
+    
     operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
 
-    for i in 0..<100:
+    operations.add(Operation(sign:"cos", unary: true, eval: (a, b) => cos(a.eval())))
+    operations.add(Operation(sign:"sin", unary: true, eval: (a, b) => sin(a.eval())))
+
+    #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
+
+    for i in 0..<1000:
         var tree = Node()
         randomTree(operations, tree, 4)
+        #tree.print()
+
+        echo tree.eval
         var equation = ""
         tree.toEquation(equation)
+        echo equation
+        echo "_____"
 
-        #tree.print()
-        #echo equation
-        let e = tree.eval()
-        echo e
-        echo e.classify
-
-
-        if e.classify == fcNan:
-            echo equation
-            tree.print
 
 main()
