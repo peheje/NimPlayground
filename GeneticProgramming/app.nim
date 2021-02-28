@@ -41,7 +41,7 @@ proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
     let leaf = depth == max
 
     if leaf:
-        result = Node(op: ops[0], value: rand(-10.0..10.0))
+        result = Node(op: ops[0], value: round(rand(-10.0..10.0)))
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
@@ -53,13 +53,19 @@ proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0,
     if not node.op.unary:
         randomTree(ops, node.right, max, counter + 1, node.op)
 
+proc parenthesis(x: float): string =
+    if x < 0.0:
+        return fmt"({x})"
+    else:
+        return $x
+
 proc toEquation(node: Node, eq: var string, depth: int = 0) =
     let sign = node.op.sign
     let right = node.right
     let left = node.left
 
     if right != nil and right.op.sign == "val":
-        eq &= fmt"({left.value} {sign} {right.value})"
+        eq &= fmt"({parenthesis(left.value)} {sign} {parenthesis(right.value)})"
     elif not node.op.unary:
         if depth != 0:
             eq &= "("
@@ -84,20 +90,19 @@ proc main() =
     ops.add(Operation(sign: "+", eval: (a, b) => a.eval() + b.eval()))
     ops.add(Operation(sign: "-", eval: (a, b) => a.eval() - b.eval()))
     ops.add(Operation(sign: "*", eval: (a, b) => a.eval() * b.eval()))
-    ops.add(Operation(sign: "/", eval: (a, b) => a.eval() / b.eval()))
-    ops.add(Operation(sign: "abs", eval: (a, b) => abs(a.eval()), unary: true))
+    ops.add(Operation(sign: "^", eval: (a, b) => pow(a.eval(), b.eval())))
+    #ops.add(Operation(sign: "/", eval: (a, b) => a.eval() / b.eval()))
+    #ops.add(Operation(sign: "abs", eval: (a, b) => abs(a.eval()), unary: true))
     #ops.add(Operation(sign: "cos", eval: (a, b) => cos(a.eval()), unary: true))
     #ops.add(Operation(sign: "sin", eval: (a, b) => sin(a.eval()), unary: true))
     #ops.add(Operation(sign:"sqrt", eval: (a, b) => sqrt(a.eval()), unary: true))
 
-    const print = false
-    for i in 0..<1000:
-        var tree = Node()
-        randomTree(ops, tree, 4)
+    for i in 0..<1_000_000:
+        var tree: Node = nil
+        randomTree(ops, tree, 5)
         #tree.print()
 
-        when print:
-            echo tree.eval
+        if tree.eval() == 42.0:
             var equation = ""
             tree.toEquation(equation)
             echo equation
