@@ -59,15 +59,19 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
     if right != nil and right.op.sign == "val":
         eq &= fmt"({left.value} {sign} {right.value})"
     elif not node.op.unary:
-        if depth != 0: eq &= "("
+        if depth != 0:
+            eq &= "("
         left.toEquation(eq, depth + 1)
         eq &= fmt" {sign} "
         right.toEquation(eq, depth + 1)
-        if depth != 0: eq &= ")"
+        if depth != 0:
+            eq &= ")"
     else:
         eq &= fmt"{sign}("
-        if left.op.sign == "val": eq &= fmt"{left.value}"
-        else: left.toEquation(eq, depth + 1)
+        if left.op.sign == "val":
+            eq &= fmt"{left.value}"
+        else:
+            left.toEquation(eq, depth + 1)
         eq &= ")"
 
 proc main() =
