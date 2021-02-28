@@ -59,12 +59,11 @@ proc toEquation(node: Node, s: var string, depth: int = 0) =
     if right != nil and right.op.sign == "val":
         s &= fmt"({left.value} {sign} {right.value})"
     elif not node.op.unary:
-        if right != nil and left != nil:
-            if depth != 0: s &= "("
-            left.toEquation(s, depth + 1)
-            s &= fmt" {sign} "
-            right.toEquation(s, depth + 1)
-            if depth != 0: s &= ")"
+        if depth != 0: s &= "("
+        left.toEquation(s, depth + 1)
+        s &= fmt" {sign} "
+        right.toEquation(s, depth + 1)
+        if depth != 0: s &= ")"
     else:
         s &= fmt"{sign}("
         if left.op.sign == "val": s &= fmt"{left.value}"
@@ -88,21 +87,14 @@ proc main() =
     #operations.add(Operation(sign:"sqrt", unary: true, eval: (a, b) => sqrt(a.eval())))
     #operations.add(Operation(sign:"abs", unary: true, eval: (a, b) => abs(a.eval())))
 
-    for i in 0..<1_000_000:
+    for i in 0..<1:
         var tree = Node()
         randomTree(operations, tree, 5)
         var equation = ""
         tree.toEquation(equation)
 
-        let u = tree.eval()
-
-        if i mod 100000 == 0:
-            echo i
-            echo u
-            echo equation
-
         #tree.print()
-        #echo equation
-        #echo tree.eval()
+        echo equation
+        echo tree.eval()
 
 main()
