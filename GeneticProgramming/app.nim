@@ -22,12 +22,12 @@ proc eval(node: Node): float =
         return node.value
     return node.op.eval(node.left, node.right)
 
-proc print(node: Node, s: int = 0) =
+proc print(node: Node, indent: int = 0) =
     if node == nil:
         return
-    print(node.right, s + 6)
+    print(node.right, indent + 6)
     echo ""
-    for i in 0..<s:
+    for i in 0..<indent:
         stdout.write(" ")
     if node.op.sign == "val":
         echo node.value.formatFloat(ffDecimal, 3)
