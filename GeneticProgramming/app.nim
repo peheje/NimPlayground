@@ -33,7 +33,7 @@ proc print(node: Node, indent: int = 0) =
         echo node.value.formatFloat(ffDecimal, 3)
     else:
         echo node.op.sign
-    print(node.left, s + 6)
+    print(node.left, indent + 6)
 
 proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
     let leaf = depth == max
