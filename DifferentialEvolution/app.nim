@@ -6,7 +6,7 @@ import sequtils
 import stats
 # import nimprof
 
-# nim c -r -d=danger -l=-flto --passC:-ffast-math app.nim
+# nim c -r -d=danger --passC:-flto --passC:-ffast-math app.nim
 
 proc main() =
 
