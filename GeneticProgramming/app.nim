@@ -37,7 +37,7 @@ proc print(node: Node, indent: int = 0) =
         echo node.op.sign
     print(node.left, indent + 6)
 
-proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
+proc randomNode(ops: seq[Operation], depth, max: int): Node =
     let leaf = depth == max
 
     if leaf:
@@ -45,13 +45,13 @@ proc randomNode(ops: seq[Operation], parent: Operation, depth, max: int): Node =
     else:
         result = Node(op: ops[rand(1..<ops.len)])
 
-proc randomTree(ops: seq[Operation], node: var Node, max: int, counter: int = 0, parent: Operation = nil) =
-    node = randomNode(ops, parent, counter, max)
+proc randomTree(ops: seq[Operation], node: var Node, max, counter: int = 0) =
+    node = randomNode(ops, counter, max)
     if counter >= max:
         return
-    randomTree(ops, node.left, max, counter + 1, node.op)
+    randomTree(ops, node.left, max, counter + 1)
     if not node.op.unary:
-        randomTree(ops, node.right, max, counter + 1, node.op)
+        randomTree(ops, node.right, max, counter + 1)
 
 proc parenthesis(x: float): string =
     if x < 0.0:
@@ -106,6 +106,7 @@ proc main() =
             var equation = ""
             tree.toEquation(equation)
             echo equation
+            echo tree.eval()
             echo "_____"
 
 
