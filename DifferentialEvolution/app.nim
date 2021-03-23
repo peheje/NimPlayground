@@ -35,12 +35,8 @@ proc main() =
     crossover = 0.9
     mutate = 0.4
     trial = newSeq[float](params)
-    scores = newSeq[float](popsize)
     pop = newSeqWith(popsize, newSeqWith(params, rand(bounds)))
-
-  # Init scores
-  for i in 0..<popsize:
-    scores[i] = optimizer(pop[i])
+    scores = pop.mapIt(optimizer(it))
 
   # For each generation
   for g in 0..<generations:
