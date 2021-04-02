@@ -4,6 +4,10 @@ import random
 import sugar
 import strformat
 
+# Fast math gives some weird behavior, try: nim c -r -d=danger -l=-flto app.nim
+
+const subresults = false
+
 type
     Node = ref object
         left, right: Node
@@ -34,7 +38,11 @@ proc print(node: Node, indent: int = 0) =
     if node.op.sign == "val":
         echo node.value.formatFloat(ffDecimal, 3)
     else:
-        echo node.op.sign
+        when subresults:
+            let value = node.eval()
+            echo fmt"{node.op.sign} ({value})"
+        else:
+            echo node.op.sign
     print(node.left, indent + 6)
 
 proc randomNode(ops: seq[Operation], depth, max: int): Node =
@@ -97,17 +105,19 @@ proc main() =
     #ops.add(Operation(sign: "sin", eval: (a, b) => sin(a.eval()), unary: true))
     #ops.add(Operation(sign:"sqrt", eval: (a, b) => sqrt(a.eval()), unary: true))
 
-    for i in 0..<1_000_000:
+    for i in 0..<10_000_000:
         var tree: Node = nil
         randomTree(ops, tree, 5)
-        #tree.print()
 
-        if tree.eval() == 42.0:
+        let value = tree.eval()
+
+        if value == 120.0:
+            echo "_____"
             var equation = ""
             tree.toEquation(equation)
+            tree.print()
             echo equation
-            echo tree.eval()
+            echo value
             echo "_____"
-
 
 main()
