@@ -1,6 +1,6 @@
 import random
 import problems
-import streams
+# import streams
 import times
 import sequtils
 import stats
@@ -17,7 +17,7 @@ proc main() =
     optimizer = f1
     params = 300
     bounds = -10.0..10.0
-    generations = 10000
+    generations = 20000
     popsize = 200
     mutate_range = 0.2..0.95
     crossover_range = 0.1..1.0
@@ -32,16 +32,15 @@ proc main() =
       quit("could not open file", 100)
 
   var
-    crossover = 0.9
-    mutate = 0.4
     trial = newSeq[float](params)
     pop = newSeqWith(popsize, newSeqWith(params, rand(bounds)))
     scores = pop.mapIt(optimizer(it))
 
   # For each generation
   for g in 0..<generations:
-    crossover = rand(crossover_range)
-    mutate = rand(mutate_range)
+    var
+      crossover = rand(crossover_range)
+      mutate = rand(mutate_range)
 
     for i in 0..<popsize:
       # Get three others, fast than .sample
