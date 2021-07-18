@@ -78,32 +78,30 @@ proc parenthesis(x: float): string =
         return $x
 
 proc toEquation(node: Node, eq: var string, depth: int = 0) =
-    let right = node.right
-    let left = node.left
-
-    var sign = "UNINITIALIZED"
-    if node.kind == nkBinary:
-            sign = node.binaryOperation.sign
-    else:
-        assert(false)
-
-    if right != nil and right.kind == nkValue:
-        eq &= fmt"({parenthesis(left.value)} {sign} {parenthesis(right.value)})"
-    elif node.kind != nkUnary:
-        if depth != 0:
-            eq &= "("
-        left.toEquation(eq, depth + 1)
-        eq &= fmt" {sign} "
-        right.toEquation(eq, depth + 1)
-        if depth != 0:
+    case node.kind
+        of nkValue:
+            assert(false, "nkValue or nkUnary kind should not end up here")
+        of nkUnary:
+            # Untested code:
+            let sign = node.unaryOperation.sign
+            eq &= fmt"{sign}("
+            if node.left.kind == nkValue:
+                eq &= fmt"{node.left.value}"
+            else:
+                node.left.toEquation(eq, depth + 1)
             eq &= ")"
-    else:
-        eq &= fmt"{sign}("
-        if left.kind == nkValue:
-            eq &= fmt"{left.value}"
-        else:
-            left.toEquation(eq, depth + 1)
-        eq &= ")"
+        of nkBinary:
+            let sign = node.binaryOperation.sign
+            if node.left.kind == nkValue and node.right.kind == nkValue:
+                eq &= fmt"({parenthesis(node.left.value)} {sign} {parenthesis(node.right.value)})"
+            else:
+                if depth != 0:
+                    eq &= "("
+                node.left.toEquation(eq, depth + 1)
+                eq &= fmt" {sign} "
+                node.right.toEquation(eq, depth + 1)
+                if depth != 0:
+                    eq &= ")"
 
 proc main() =
     randomize()
@@ -119,9 +117,9 @@ proc main() =
     #ops.add(Operation(sign: "sin", call: (a, b) => sin(a.eval()), unary: true))
     #ops.add(Operation(sign:"sqrt", call: (a, b) => sqrt(a.eval()), unary: true))
 
-    for i in 0..<100_000:
+    for i in 0..<500_000:
         var tree: Node = nil
-        randomTree(ops, tree, 2)
+        randomTree(ops, tree, 4)
 
         if tree.eval() == 42.0:
             tree.print()
