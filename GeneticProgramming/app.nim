@@ -42,26 +42,38 @@ proc print(node: Node, indent: int = 0) =
     for i in 0..<indent:
         stdout.write(" ")
     case node.kind
-        of nkValue: echo node.value.formatFloat(ffDecimal, 3)
-        of nkBinary: echo node.binaryOperation.sign
-        of nkUnary: echo node.unaryOperation.sign
-    if node.kind == nkBinary:
-        print(node.left, indent + 6)
+        of nkValue:
+            echo node.value.formatFloat(ffDecimal, 3)
+        of nkBinary: 
+            echo node.binaryOperation.sign
+            print(node.left, indent + 6)
+        of nkUnary: 
+            echo node.unaryOperation.sign
+            print(node.child, indent + 6)
 
-proc randomNode(ops: seq[BinaryOperation], depth, max: int): Node =
+proc randomNode(ops: seq[BinaryOperation], unaryOps: seq[UnaryOperation], depth, max: int): Node =
     let leaf = depth == max
     if leaf:
         result = Node(kind: nkValue, value: round(rand(-10.0..10.0)))
     else:
-        result = Node(kind: nkBinary, binaryOperation: ops[rand(0..<ops.len)])
+        if rand(1.0) < 0.25:
+            result = Node(kind: nkUnary, unaryOperation: unaryOps[rand(0..<unaryOps.len)])
+        else:
+            result = Node(kind: nkBinary, binaryOperation: ops[rand(0..<ops.len)])
 
-proc randomTree(ops: seq[BinaryOperation], node: var Node, max, counter: int = 0) =
-    node = randomNode(ops, counter, max)
+proc randomTree(ops: seq[BinaryOperation], unaryOps: seq[UnaryOperation], node: var Node, max, counter: int = 0) =
+    node = randomNode(ops, unaryOps, counter, max)
     if counter >= max:
         return
-    randomTree(ops, node.left, max, counter + 1)
-    if node.kind != nkUnary:
-        randomTree(ops, node.right, max, counter + 1)
+
+    case node.kind
+        of nkBinary:
+            randomTree(ops, unaryOps, node.left, max, counter + 1)
+            randomTree(ops, unaryOps, node.right, max, counter + 1)
+        of nkUnary:
+            randomTree(ops, unaryOps, node.child, max, counter + 1)
+        of nkValue:
+            assert(false, "value node should not end up in random tree")
 
 proc parenthesis(x: float): string =
     if x < 0.0:
@@ -77,10 +89,10 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
             # Untested code:
             let sign = node.unaryOperation.sign
             eq &= fmt"{sign}("
-            if node.left.kind == nkValue:
-                eq &= fmt"{node.left.value}"
+            if node.child.kind == nkValue:
+                eq &= fmt"{node.child.value}"
             else:
-                node.left.toEquation(eq, depth + 1)
+                node.child.toEquation(eq, depth + 1)
             eq &= ")"
         of nkBinary:
             let sign = node.binaryOperation.sign
@@ -101,25 +113,27 @@ proc main() =
 
     ops.add(BinaryOperation(sign: "+", call: (a, b) => a.eval() + b.eval()))
     ops.add(BinaryOperation(sign: "-", call: (a, b) => a.eval() - b.eval()))
-    ops.add(BinaryOperation(sign: "*", call: (a, b) => a.eval() * b.eval()))
-    ops.add(BinaryOperation(sign: "^", call: (a, b) => pow(a.eval(), b.eval())))
+    #ops.add(BinaryOperation(sign: "*", call: (a, b) => a.eval() * b.eval()))
+    #ops.add(BinaryOperation(sign: "^", call: (a, b) => pow(a.eval(), b.eval())))
     #ops.add(Operation(sign: "/", call: (a, b) => a.eval() / b.eval()))
-    #ops.add(Operation(sign: "abs", call: (a, b) => abs(a.eval()), unary: true))
+
+    var unaryOps = newSeq[UnaryOperation]()
+    unaryOps.add(UnaryOperation(sign: "abs", call: (x) => abs(x.eval())))
+    unaryOps.add(UnaryOperation(sign:"sqrt", call: (x) => sqrt(x.eval())))
     #ops.add(Operation(sign: "cos", call: (a, b) => cos(a.eval()), unary: true))
     #ops.add(Operation(sign: "sin", call: (a, b) => sin(a.eval()), unary: true))
-    #ops.add(Operation(sign:"sqrt", call: (a, b) => sqrt(a.eval()), unary: true))
 
     for i in 0..<1_000_000:
         var tree: Node = nil
-        randomTree(ops, tree, 4)
+        randomTree(ops, unaryOps, tree, 2)
 
-        if tree.eval() == 42.0:
-            tree.print()
-            var equation = ""
-            tree.toEquation(equation)
-            echo equation
-            echo tree.eval()
-            echo "_____"
+        #if tree.eval() == 42.0:
+        tree.print()
+        var equation = ""
+        tree.toEquation(equation)
+        echo equation
+        echo tree.eval()
+        echo "_____"
 
 
 main()
