@@ -17,7 +17,7 @@ type
     Operation = ref object
         sign: string
         unary: bool
-        eval: proc(a, b: Node): float
+        call: proc(a, b: Node): float
 
 proc eval(node: Node): float =
     if node == nil:
@@ -25,8 +25,8 @@ proc eval(node: Node): float =
     elif node.op.sign == "val":
         return node.value
     elif node.op.unary:
-        return node.op.eval(node.left, nil)
-    return node.op.eval(node.left, node.right)
+        return node.op.call(node.left, nil)
+    return node.op.call(node.left, node.right)
 
 proc print(node: Node, indent: int = 0) =
     if node == nil:
@@ -94,16 +94,16 @@ proc main() =
     randomize()
     var ops = newSeq[Operation]()
 
-    ops.add(Operation(sign: "val", eval: (a, b) => a.value))
-    ops.add(Operation(sign: "+", eval: (a, b) => a.eval() + b.eval()))
-    ops.add(Operation(sign: "-", eval: (a, b) => a.eval() - b.eval()))
-    ops.add(Operation(sign: "*", eval: (a, b) => a.eval() * b.eval()))
-    ops.add(Operation(sign: "^", eval: (a, b) => pow(a.eval(), b.eval())))
-    #ops.add(Operation(sign: "/", eval: (a, b) => a.eval() / b.eval()))
-    #ops.add(Operation(sign: "abs", eval: (a, b) => abs(a.eval()), unary: true))
-    #ops.add(Operation(sign: "cos", eval: (a, b) => cos(a.eval()), unary: true))
-    #ops.add(Operation(sign: "sin", eval: (a, b) => sin(a.eval()), unary: true))
-    #ops.add(Operation(sign:"sqrt", eval: (a, b) => sqrt(a.eval()), unary: true))
+    ops.add(Operation(sign: "val", call: (a, b) => a.value))
+    ops.add(Operation(sign: "+", call: (a, b) => a.eval() + b.eval()))
+    ops.add(Operation(sign: "-", call: (a, b) => a.eval() - b.eval()))
+    ops.add(Operation(sign: "*", call: (a, b) => a.eval() * b.eval()))
+    ops.add(Operation(sign: "^", call: (a, b) => pow(a.eval(), b.eval())))
+    #ops.add(Operation(sign: "/", call: (a, b) => a.eval() / b.eval()))
+    #ops.add(Operation(sign: "abs", call: (a, b) => abs(a.eval()), unary: true))
+    #ops.add(Operation(sign: "cos", call: (a, b) => cos(a.eval()), unary: true))
+    #ops.add(Operation(sign: "sin", call: (a, b) => sin(a.eval()), unary: true))
+    #ops.add(Operation(sign:"sqrt", call: (a, b) => sqrt(a.eval()), unary: true))
 
     for i in 0..<10_000_000:
         var tree: Node = nil
