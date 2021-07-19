@@ -12,9 +12,9 @@ type
 
     Node = ref object
         case kind: NodeKind
-        of nkValue: 
+        of nkValue:
             value: float
-        of nkBinary: 
+        of nkBinary:
             binaryOperation: BinaryOperation
             left, right: Node
         of nkUnary:
@@ -44,10 +44,10 @@ proc print(node: Node, indent: int = 0) =
     case node.kind:
         of nkValue:
             echo node.value.formatFloat(ffDecimal, 3)
-        of nkBinary: 
+        of nkBinary:
             echo node.binaryOperation.sign
             print(node.left, indent + 6)
-        of nkUnary: 
+        of nkUnary:
             echo node.unaryOperation.sign
             print(node.child, indent + 6)
 
@@ -116,7 +116,7 @@ proc main() =
 
     var unaryOps = newSeq[UnaryOperation]()
     unaryOps.add(UnaryOperation(sign: "abs", call: (x) => abs(x.eval())))
-    unaryOps.add(UnaryOperation(sign:"sqrt", call: (x) => sqrt(x.eval())))
+    unaryOps.add(UnaryOperation(sign: "sqrt", call: (x) => sqrt(x.eval())))
     unaryOps.add(UnaryOperation(sign: "cos", call: (x) => cos(x.eval())))
     unaryOps.add(UnaryOperation(sign: "sin", call: (x) => sin(x.eval())))
 
