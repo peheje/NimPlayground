@@ -51,28 +51,28 @@ proc print(node: Node, indent: int = 0) =
             echo node.unaryOperation.sign
             print(node.child, indent + 6)
 
-proc randomNode(ops: seq[BinaryOperation], unaryOps: seq[UnaryOperation], depth, max: int): Node =
+proc randomNode(binaryOps: seq[BinaryOperation], unaryOps: seq[UnaryOperation], depth, max: int): Node =
     let leaf = depth == max
     if leaf:
         result = Node(kind: nkValue, value: round(rand(-10.0..10.0)))
     else:
         if rand(1.0) < 0.25:
-            result = Node(kind: nkUnary, unaryOperation: unaryOps[rand(0..<unaryOps.len)])
+            result = Node(kind: nkUnary, unaryOperation: unaryOps.sample())
         else:
-            result = Node(kind: nkBinary, binaryOperation: ops[rand(0..<ops.len)])
+            result = Node(kind: nkBinary, binaryOperation: binaryOps.sample())
 
-proc randomTree(ops: seq[BinaryOperation], unaryOps: seq[UnaryOperation], node: var Node, max, counter: int = 0) =
-    node = randomNode(ops, unaryOps, counter, max)
+proc randomTree(binaryOps: seq[BinaryOperation], unaryOps: seq[UnaryOperation], node: var Node, max, counter: int = 0) =
+    node = randomNode(binaryOps, unaryOps, counter, max)
     if counter >= max:
         return
     case node.kind:
-        of nkBinary:
-            randomTree(ops, unaryOps, node.left, max, counter + 1)
-            randomTree(ops, unaryOps, node.right, max, counter + 1)
-        of nkUnary:
-            randomTree(ops, unaryOps, node.child, max, counter + 1)
         of nkValue:
-            assert(false, "randomTree should not be called on value nodes")
+            assert(false, "randomTree should not be called on value-nodes")
+        of nkBinary:
+            randomTree(binaryOps, unaryOps, node.left, max, counter + 1)
+            randomTree(binaryOps, unaryOps, node.right, max, counter + 1)
+        of nkUnary:
+            randomTree(binaryOps, unaryOps, node.child, max, counter + 1)
 
 proc parenthesis(x: float): string =
     if x < 0.0:
@@ -83,16 +83,7 @@ proc parenthesis(x: float): string =
 proc toEquation(node: Node, eq: var string, depth: int = 0) =
     case node.kind:
         of nkValue:
-            assert(false, "toEquation should not be called on value and unary nodes")
-        of nkUnary:
-            # Untested code:
-            let sign = node.unaryOperation.sign
-            eq &= fmt"{sign}("
-            if node.child.kind == nkValue:
-                eq &= fmt"{node.child.value}"
-            else:
-                node.child.toEquation(eq, depth + 1)
-            eq &= ")"
+            assert(false, "toEquation should not be called on value-nodes")
         of nkBinary:
             let sign = node.binaryOperation.sign
             if node.left.kind == nkValue and node.right.kind == nkValue:
@@ -105,26 +96,33 @@ proc toEquation(node: Node, eq: var string, depth: int = 0) =
                 node.right.toEquation(eq, depth + 1)
                 if depth != 0:
                     eq &= ")"
+        of nkUnary:
+            let sign = node.unaryOperation.sign
+            eq &= fmt"{sign}("
+            if node.child.kind == nkValue:
+                eq &= fmt"{node.child.value}"
+            else:
+                node.child.toEquation(eq, depth + 1)
+            eq &= ")"
 
 proc main() =
     randomize()
-    var ops = newSeq[BinaryOperation]()
-
-    ops.add(BinaryOperation(sign: "+", call: (a, b) => a.eval() + b.eval()))
-    ops.add(BinaryOperation(sign: "-", call: (a, b) => a.eval() - b.eval()))
-    #ops.add(BinaryOperation(sign: "*", call: (a, b) => a.eval() * b.eval()))
-    #ops.add(BinaryOperation(sign: "^", call: (a, b) => pow(a.eval(), b.eval())))
-    #ops.add(Operation(sign: "/", call: (a, b) => a.eval() / b.eval()))
+    var binaryOps = newSeq[BinaryOperation]()
+    binaryOps.add(BinaryOperation(sign: "+", call: (a, b) => a.eval() + b.eval()))
+    binaryOps.add(BinaryOperation(sign: "-", call: (a, b) => a.eval() - b.eval()))
+    binaryOps.add(BinaryOperation(sign: "*", call: (a, b) => a.eval() * b.eval()))
+    binaryOps.add(BinaryOperation(sign: "^", call: (a, b) => pow(a.eval(), b.eval())))
+    binaryOps.add(BinaryOperation(sign: "/", call: (a, b) => a.eval() / b.eval()))
 
     var unaryOps = newSeq[UnaryOperation]()
     unaryOps.add(UnaryOperation(sign: "abs", call: (x) => abs(x.eval())))
     unaryOps.add(UnaryOperation(sign:"sqrt", call: (x) => sqrt(x.eval())))
-    #ops.add(Operation(sign: "cos", call: (a, b) => cos(a.eval()), unary: true))
-    #ops.add(Operation(sign: "sin", call: (a, b) => sin(a.eval()), unary: true))
+    unaryOps.add(UnaryOperation(sign: "cos", call: (x) => cos(x.eval())))
+    unaryOps.add(UnaryOperation(sign: "sin", call: (x) => sin(x.eval())))
 
     for i in 0..<1_000_000:
         var tree: Node = nil
-        randomTree(ops, unaryOps, tree, 2)
+        randomTree(binaryOps, unaryOps, tree, 3)
 
         #if tree.eval() == 42.0:
         tree.print()
