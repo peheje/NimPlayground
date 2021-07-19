@@ -69,7 +69,7 @@ proc randomTree(binaryOps: seq[BinaryOperation], unaryOps: seq[UnaryOperation], 
         return
     case node.kind:
         of nkValue:
-            assert(false, "randomTree should not be called on value-nodes")
+            assert(false, "randomTree should not get here on value-nodes")
         of nkBinary:
             randomTree(binaryOps, unaryOps, node.left, max, counter + 1)
             randomTree(binaryOps, unaryOps, node.right, max, counter + 1)
@@ -124,7 +124,7 @@ proc main() =
 
     for i in 0..<10_000_000:
         var tree: Node = nil
-        randomTree(binaryOps, unaryOps, tree, 3)
+        randomTree(binaryOps, unaryOps, tree, 6)
 
         #if tree.eval() == 42.0:
         tree.print()
