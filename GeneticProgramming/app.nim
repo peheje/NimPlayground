@@ -30,29 +30,21 @@ type
         call: proc(a: Node): float
 
 proc eval(node: Node): float =
-    if node == nil:
-        return
-    elif node.kind == nkValue:
-        return node.value
-    elif node.kind == nkUnary:
-        return node.unaryOperation.call(node.child)
-    return node.binaryOperation.call(node.left, node.right)
+    case node.kind
+        of nkValue: return node.value
+        of nkBinary: return node.binaryOperation.call(node.left, node.right)
+        of nkUnary: return node.unaryOperation.call(node.child)
 
 proc print(node: Node, indent: int = 0) =
-    if node == nil:
-        return
     if node.kind == nkBinary:
         print(node.right, indent + 6)
     echo ""
     for i in 0..<indent:
         stdout.write(" ")
     case node.kind
-        of nkValue:
-            echo node.value.formatFloat(ffDecimal, 3)
-        of nkBinary:
-            echo node.binaryOperation.sign
-        of nkUnary:
-            echo node.unaryOperation.sign
+        of nkValue: echo node.value.formatFloat(ffDecimal, 3)
+        of nkBinary: echo node.binaryOperation.sign
+        of nkUnary: echo node.unaryOperation.sign
     if node.kind == nkBinary:
         print(node.left, indent + 6)
 
@@ -117,7 +109,7 @@ proc main() =
     #ops.add(Operation(sign: "sin", call: (a, b) => sin(a.eval()), unary: true))
     #ops.add(Operation(sign:"sqrt", call: (a, b) => sqrt(a.eval()), unary: true))
 
-    for i in 0..<500_000:
+    for i in 0..<1_000_000:
         var tree: Node = nil
         randomTree(ops, tree, 4)
 
