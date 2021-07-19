@@ -30,10 +30,10 @@ type
         call: proc(a: Node): float
 
 proc eval(node: Node): float =
-    case node.kind
-        of nkValue: return node.value
-        of nkBinary: return node.binaryOperation.call(node.left, node.right)
-        of nkUnary: return node.unaryOperation.call(node.child)
+    result = case node.kind:
+        of nkValue: node.value
+        of nkBinary: node.binaryOperation.call(node.left, node.right)
+        of nkUnary: node.unaryOperation.call(node.child)
 
 proc print(node: Node, indent: int = 0) =
     if node.kind == nkBinary:
@@ -41,7 +41,7 @@ proc print(node: Node, indent: int = 0) =
     echo ""
     for i in 0..<indent:
         stdout.write(" ")
-    case node.kind
+    case node.kind:
         of nkValue:
             echo node.value.formatFloat(ffDecimal, 3)
         of nkBinary: 
@@ -65,15 +65,14 @@ proc randomTree(ops: seq[BinaryOperation], unaryOps: seq[UnaryOperation], node: 
     node = randomNode(ops, unaryOps, counter, max)
     if counter >= max:
         return
-
-    case node.kind
+    case node.kind:
         of nkBinary:
             randomTree(ops, unaryOps, node.left, max, counter + 1)
             randomTree(ops, unaryOps, node.right, max, counter + 1)
         of nkUnary:
             randomTree(ops, unaryOps, node.child, max, counter + 1)
         of nkValue:
-            assert(false, "value node should not end up in random tree")
+            assert(false, "randomTree should not be called on value nodes")
 
 proc parenthesis(x: float): string =
     if x < 0.0:
@@ -82,9 +81,9 @@ proc parenthesis(x: float): string =
         return $x
 
 proc toEquation(node: Node, eq: var string, depth: int = 0) =
-    case node.kind
+    case node.kind:
         of nkValue:
-            assert(false, "nkValue or nkUnary kind should not end up here")
+            assert(false, "toEquation should not be called on value and unary nodes")
         of nkUnary:
             # Untested code:
             let sign = node.unaryOperation.sign
