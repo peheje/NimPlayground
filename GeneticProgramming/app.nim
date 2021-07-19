@@ -27,7 +27,7 @@ type
 
     UnaryOperation = ref object
         sign: string
-        call: proc(a: Node): float
+        call: proc(x: Node): float
 
 proc eval(node: Node): float =
     result = case node.kind:
