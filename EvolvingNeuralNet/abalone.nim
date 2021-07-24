@@ -2,6 +2,7 @@ import random
 import tables
 import datasets
 import strutils
+import os
 
 type
     Abalone* = ref object of Dataset
@@ -20,7 +21,7 @@ proc newAbalone*(ratioOfTraining: float): Abalone =
         "I": 1.0
     }.toTable()
 
-    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/abalone.data"
+    let path = getAppDir() & "/abalone.data"
 
     var rows = newSeq[string]()
     for line in lines(path):

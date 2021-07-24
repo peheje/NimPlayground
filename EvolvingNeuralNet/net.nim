@@ -48,7 +48,11 @@ proc correctPredictions*(nets: seq[Net], series: Series): int =
             result += 1
 
 proc computeFitness*(n: Net, series: Series, parentInheritance, regularization: float) = 
+    let correct = n.correctPredictions(series)
+    n.fitness = correct.toFloat.pow(2) + n.fitness * parentInheritance
+    n.correct = correct
 
+proc computeFitness2*(n: Net, series: Series, parentInheritance, regularization: float) = 
     var regularizationSum = 0.0
     for layer in n.layers:
         for neuron in layer.neurons:

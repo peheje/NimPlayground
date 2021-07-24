@@ -2,6 +2,7 @@ import json
 import streams
 import sugar
 import algorithm
+import os
 
 proc argMax*[T](x: seq[T]): int =
     var max = x[0]
@@ -25,7 +26,7 @@ proc echoJsonDebug*(o: any) =
     echo pretty(%o)
 
 proc writeJsonDebug*(o: any) =
-    const path = "/Users/phj/Desktop/nim_write.txt"
+    let path = getAppDir() & "/nim_write.txt"
     let file = newFileStream(path, FileMode.fmWrite)
     if file != nil:
         file.writeLine(pretty(%o))

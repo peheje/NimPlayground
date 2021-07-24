@@ -14,25 +14,25 @@ proc main() =
 
     #randomize()
     const
-        size = 2000
-        batchsize = 20
+        size = 100
+        batchsize = 100
         generations = 20000
         print = 50
-        trainRatio = 0.75
+        trainRatio = 0.70
         parentInheritance = 0.9
-        regularization = 0.8
+        regularization = 0.9
         testWithTop = 0
-        mutateProbability = 0.20
-        mutateRate = 0.01
-        mutatePower = 2.0
+        neuronMutateProbability = 0.1
+        weightMutateProbablity = 0.1
+        weightMutatePower = 0.5
         crossoverProbability = 0.0
-        crossoverRate = 0.02
+        crossoverRate = 0.05
         crossoverPower = 0.5
     
     let data = newIris(trainRatio)
-    let setup = @[data.inputs, 10, 10, 10, data.outputs]
+    let setup = @[data.inputs, 20, 20, data.outputs]
+    
     let batch = data.computeBatch(batchsize)
-
     var pool = newSeq[Net]()
     for i in 0..<size:
         let net = newNet(setup)
@@ -42,15 +42,15 @@ proc main() =
     for j in 0..<generations:
         let wheel = computeWheel(pool)
         var nexts = newSeq[Net]()
+        let batch = data.computeBatch(batchsize)
 
         for i in 0..<size:
             var next = pick(pool, wheel)
             if rand(0.0..1.0) < crossoverProbability:
                 next.crossover(pool, crossoverRate, crossoverPower, wheel)
-            if rand(0.0..1.0) < mutateProbability:
-                next.mutate(mutatePower, mutateRate)
+            if rand(0.0..1.0) < neuronMutateProbability:
+                next.mutate(weightMutatePower, weightMutateProbablity)
 
-            let batch = data.computeBatch(batchsize)
             next.computeFitness(batch, parentInheritance, regularization)
             nexts.add(next)
         

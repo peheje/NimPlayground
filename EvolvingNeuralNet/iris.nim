@@ -2,6 +2,7 @@ import random
 import tables
 import datasets
 import strutils
+import os
 
 type
     Iris* = ref object of Dataset
@@ -19,7 +20,7 @@ proc newIris*(ratioOfTraining: float): Iris =
         "Iris-setosa": 2
     }.toTable()
 
-    const path = "/Users/phj/GitRepos/nim_genetic/EvolvingNeuralNet/iris.data"
+    let path = getAppDir() & "/iris.data"
 
     var rows = newSeq[string]()
     for line in lines(path):
