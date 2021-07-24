@@ -13,15 +13,15 @@ type
         nkUnary
 
     Node = ref object
-        case kind: NodeKind
-        of nkValue:
-            value: float
-        of nkBinary:
-            binaryOperation: BinaryOperation
-            left, right: Node
-        of nkUnary:
-            unaryOperation: UnaryOperation
-            child: Node
+        case kind: NodeKind:
+            of nkValue:
+                value: float
+            of nkBinary:
+                binaryOperation: BinaryOperation
+                left, right: Node
+            of nkUnary:
+                unaryOperation: UnaryOperation
+                child: Node
 
     BinaryOperation = ref object
         sign: string
