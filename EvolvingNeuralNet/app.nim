@@ -14,7 +14,7 @@ proc main() =
 
     #randomize()
     const
-        size = 100
+        size = 1000
         batchsize = 100
         generations = 20000
         print = 50
@@ -22,7 +22,7 @@ proc main() =
         parentInheritance = 0.9
         regularization = 0.9
         testWithTop = 0
-        neuronMutateProbability = 0.1
+        neuronMutateProbability = 0.05
         weightMutateProbablity = 0.1
         weightMutatePower = 0.5
         crossoverProbability = 0.0
@@ -30,7 +30,7 @@ proc main() =
         crossoverPower = 0.5
     
     let data = newIris(trainRatio)
-    let setup = @[data.inputs, 20, 20, data.outputs]
+    let setup = @[data.inputs, 5, 5, data.outputs]
     
     let batch = data.computeBatch(batchsize)
     var pool = newSeq[Net]()
@@ -69,6 +69,7 @@ proc main() =
             let bestNet = pool[bestIdx]
             let testPredictions = bestNet.correctPredictions(data.test)
             let testPercentage = testPredictions.toFloat / data.test.xs.len.toFloat
+
             echo "test percentage t" & $testPercentage & " average fitness " & $averageFitness & topText
 
 main()

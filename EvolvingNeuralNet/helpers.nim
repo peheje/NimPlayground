@@ -3,6 +3,12 @@ import streams
 import sugar
 import algorithm
 import os
+import sequtils
+
+proc normalize*(xs: seq[float]): seq[float] =
+    let minn = min(xs)
+    let maxx = max(xs)
+    result = xs.map(x => (x - minn)/(maxx - minn))
 
 proc argMax*[T](x: seq[T]): int =
     var max = x[0]

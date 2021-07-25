@@ -12,7 +12,7 @@ type
     Net* = ref object
         layers*: seq[Layer]
         fitness*: float
-        correct*, weights*: int
+        weights*: int
 
 proc newNet*(setup: seq[int]): Net =
     new result
@@ -46,11 +46,22 @@ proc correctPredictions*(nets: seq[Net], series: Series): int =
             .argMax()
         if bestGuessIdx == correct:
             result += 1
+    
+proc computeFitness*(n: Net, series: Series, parentInheritance, regularization: float) =
+    n.fitness = 0
+    for i, x in series.xs:
+        let correct = series.ys[i]
+        let guesses = n.invoke(x)
+        let norm = normalize(guesses)
+        for j, s in norm:
+            if j == correct:
+                n.fitness += s*2
+            else:
+                n.fitness -= s
 
-proc computeFitness*(n: Net, series: Series, parentInheritance, regularization: float) = 
+proc computeFitness3*(n: Net, series: Series, parentInheritance, regularization: float) = 
     let correct = n.correctPredictions(series)
-    n.fitness = correct.toFloat.pow(2) + n.fitness * parentInheritance
-    n.correct = correct
+    n.fitness = correct.toFloat + n.fitness * parentInheritance
 
 proc computeFitness2*(n: Net, series: Series, parentInheritance, regularization: float) = 
     var regularizationSum = 0.0
@@ -65,7 +76,6 @@ proc computeFitness2*(n: Net, series: Series, parentInheritance, regularization:
     let parentFitness = n.fitness * parentInheritance
 
     n.fitness = max(parentFitness + batchfitness - regularizationLoss, 0.0)
-    n.correct = correct
 
 proc mutate*(x: Net, power, frequency: float) =
     for layer in x.layers:
