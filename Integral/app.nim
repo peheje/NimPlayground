@@ -47,6 +47,7 @@ proc main() =
         fs = @[
             Test(name: "x^2", f: (x: float) => x * x, start: 0.0, to: 1.0, answer: 1.0/3.0),
             Test(name: "1/x", f: (x: float) => 1.0 / x, start: 1.0, to: 100.0, answer: ln(100.0)),
+            Test(name: "x^3+x^2+x+1", f: (x: float) => x*x*x+x*x+x+1, start: -2.0, to: 2.5, answer: 19.2656),
         ]
 
     var exs: seq[Experiment]
