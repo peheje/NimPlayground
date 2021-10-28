@@ -6,20 +6,24 @@ type
     F = proc(x: float): float
     Rule = proc(f: F, x, h: float): float
 
-    Experiment = ref object
+    Test = ref object
         name: string
         f: F
         start, to, answer: float
+
+    Experiment = ref object
+        name: string
         rule: Rule
+        test: Test
 
 proc integral(
     start, to: float,
-    cols: int,
+    columns: int,
     rule: Rule,
     f: F): float =
-    let h = (to - start) / cols.toFloat()
+    let h = (to - start) / columns.toFloat()
     var sum = 0.0
-    for i in 0..<cols:
+    for i in 0..<columns:
         let x = start + i.toFloat() * h
         sum += rule(f, x, h)
     sum * h
@@ -37,19 +41,31 @@ proc simpson(f: F, x, h: float): float = (f(x) + 4.0 * f(x + h / 2.0) + f(x + h)
 proc main() =
 
     const
-        cols = 100
-        powerOfTwo = (x: float) => x * x
-        oneOver = (x: float) => 1.0 / x
+        columns = 100
 
-    echo fmt"Columns: {cols}"
+    let
+        fs = @[
+            Test(name: "x^2", f: (x: float) => x * x, start: 0.0, to: 1.0, answer: 1.0/3.0),
+            Test(name: "1/x", f: (x: float) => 1.0 / x, start: 1.0, to: 100.0, answer: ln(100.0)),
+        ]
 
-    for ex in @[
-        Experiment(name: "Left-Rectangle x^2", f: powerOfTwo, start: 0.0, to: 1.0, answer: 1.0/3.0, rule: leftRectangle),
-        Experiment(name: "Simpson, x^2", f: powerOfTwo, start: 0.0, to: 1.0, answer: 1.0/3.0, rule: simpson),
-        Experiment(name: "Left-Rectangle 1/x", f: oneOver, start: 1.0, to: 100.0, answer: ln(100.0), rule: leftRectangle),
-        Experiment(name: "Simpson 1/x", f: oneOver, start: 1.0, to: 100.0, answer: ln(100.0), rule: simpson)
-        ]:
-        stdout.write ex.name & ": "
-        echo fmt"{integral(ex.start, ex.to, cols, ex.rule, ex.f)} == {ex.answer} ?"
+    var exs: seq[Experiment]
+    for f in fs:
+        exs.add(Experiment(name: "Left", rule: leftRectangle, test: f))
+        exs.add(Experiment(name: "Right", rule: rightRectangle, test: f))
+        exs.add(Experiment(name: "Mid", rule: midRectangle, test: f))
+        exs.add(Experiment(name: "Trapezium", rule: trapezium, test: f))
+        exs.add(Experiment(name: "Simpson", rule: simpson, test: f))
+
+    echo fmt"Columns: {columns}"
+
+    for ex in exs:
+        let
+            test = ex.test
+            guess = integral(test.start, test.to, columns, ex.rule, test.f)
+            error = abs(test.answer - guess)
+        echo ex.name & " " & test.name
+        echo fmt"{guess} error: {error} ?"
+        echo ""
 
 main()
