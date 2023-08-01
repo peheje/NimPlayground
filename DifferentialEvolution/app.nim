@@ -1,6 +1,6 @@
 import random
 import problems
-# import streams
+import streams
 import times
 import sequtils
 import stats
@@ -12,19 +12,19 @@ proc main() =
 
   let start = cpuTime()
   const
-    log_csv = false
+    log_csv = true
     print = 1000
     optimizer = f1
     params = 300
     bounds = -10.0..10.0
-    generations = 20000
+    generations = 200000
     popsize = 200
     mutate_range = 0.2..0.95
     crossover_range = 0.1..1.0
 
   when log_csv:
     # Open file for writing
-    const path = "/Users/phj/Desktop/nim_write.txt"
+    const path = "nim_write.txt"
     let file = newFileStream(path, FileMode.fmWrite)
     if file != nil:
       file.writeLine("step,mean")
@@ -64,8 +64,9 @@ proc main() =
         scores[i] = score_trial
 
     if g mod print == 0 or g == generations-1:
+      let mean = scores.mean()
       echo "generation ", g
-      echo "generation mean ", scores.mean()
+      echo "generation mean ", mean
       echo "generation best ", scores.min()
       when log_csv:
         file.writeLine($g & "," & $mean)
