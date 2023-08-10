@@ -15,8 +15,8 @@ const
   optimizer = f1
   params = 300
   bounds = -10.0..10.0
-  generations = 10000
-  popsize = 200
+  generations = 20000
+  popsize = 300
   mutate_range = 0.2..0.95
   crossover_range = 0.1..1.0
 
@@ -41,11 +41,11 @@ for g in 0..<generations:
     mutate = rand(mutate_range)
 
   for i in 0..<popsize:
-    # Get three others, fast than .sample
+    # Get three others
     let
-      x0 = pop[rand(popsize-1)]
-      x1 = pop[rand(popsize-1)]
-      x2 = pop[rand(popsize-1)]
+      x0 = pop.sample
+      x1 = pop.sample
+      x2 = pop.sample
       xt = pop[i]
 
     # Create trial
