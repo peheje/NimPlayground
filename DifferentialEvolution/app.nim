@@ -1,10 +1,10 @@
-import random
+import std/random
+import std/streams
+import std/times
+import std/sequtils
+import std/stats
 import problems
-import streams
-import times
-import sequtils
-import stats
-# import nimprof
+# import std/nimprof
 
 # nim c -r -d=danger --passC:-flto --passC:-ffast-math app.nim
 
