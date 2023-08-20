@@ -10,13 +10,13 @@ import problems
 
 let start = cpuTime()
 const
-  log_csv = true
+  log_csv = false
   print = 1000
   optimizer = f1
-  params = 300
+  params = 1000
   bounds = -10.0..10.0
-  generations = 20000
-  popsize = 300
+  generations = 10_000
+  popsize = 200
   mutate_range = 0.2..0.95
   crossover_range = 0.1..1.0
 
@@ -72,5 +72,7 @@ for g in 0..<generations:
 when log_csv:
   file.close()
 
-echo "best ", pop[scores.minIndex()]
+let best = pop[scores.minIndex()]
+echo "best ", best
+echo "score ", scores.min()
 echo "time taken: ", cpuTime() - start
