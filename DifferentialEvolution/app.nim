@@ -2,8 +2,11 @@ import std/random
 import std/times
 import std/sequtils
 import std/stats
+import std/threadpool
 import problems
 # import std/nimprof
+
+{.experimental: "parallel".}
 
 # nim c -r -d=danger --passC:-flto --passC:-ffast-math app.nim
 
@@ -59,10 +62,11 @@ for g in 0..<generations:
     crossover = rand(crossover_range)
     mutate = rand(mutate_range)
 
-  for i in 0..<popsize:
-    let (next, nextScore) = mate(pop, crossover, mutate, pop[i], scores[i])
-    pop[i] = next
-    scores[i] = nextScore
+  parallel:
+    for i in 0..<popsize:
+      let (next, nextScore) = spawn mate(pop, crossover, mutate, pop[i], scores[i])
+      pop[i] = next
+      scores[i] = nextScore
       
   if g mod print == 0 or g == generations-1:
     let mean = scores.mean()
