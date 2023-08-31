@@ -1,5 +1,4 @@
 import std/random
-import std/streams
 import std/times
 import std/sequtils
 import std/stats
@@ -30,9 +29,29 @@ when log_csv:
     quit("could not open file", 100)
 
 var
-  trial = newSeq[float](params)
   pop = newSeqWith(popsize, newSeqWith(params, rand(bounds)))
   scores = pop.mapIt(optimizer(it))
+
+proc mate(pool: seq[seq[float]], crossover: float, mutate: float, xt: seq[float], xtScore: float): tuple[a: seq[float], b: float] =
+  let
+    x0 = pop.sample
+    x1 = pop.sample
+    x2 = pop.sample
+
+  # Create trial
+  var trial = newSeq[float](params)
+  for j in 0..<params:
+    if rand(1.0) < crossover:
+      trial[j] = (x0[j] + (x1[j] - x2[j]) * mutate).clamp(bounds.a, bounds.b)
+    else:
+      trial[j] = xt[j]
+  let trialScore = optimizer(trial)
+
+  # Replace current if better
+  if trialScore < xtScore:
+    result = (trial, trialScore)
+  else:
+    result = (xt, xtScore)
 
 # For each generation
 for g in 0..<generations:
@@ -41,26 +60,10 @@ for g in 0..<generations:
     mutate = rand(mutate_range)
 
   for i in 0..<popsize:
-    # Get three others
-    let
-      x0 = pop.sample
-      x1 = pop.sample
-      x2 = pop.sample
-      xt = pop[i]
-
-    # Create trial
-    for j in 0..<params:
-      if rand(1.0) < crossover:
-        trial[j] = (x0[j] + (x1[j] - x2[j]) * mutate).clamp(bounds.a, bounds.b)
-      else:
-        trial[j] = xt[j]
-    let score_trial = optimizer(trial)
-
-    # Replace current if better
-    if score_trial < scores[i]:
-      pop[i] = trial
-      scores[i] = score_trial
-
+    let (next, nextScore) = mate(pop, crossover, mutate, pop[i], scores[i])
+    pop[i] = next
+    scores[i] = nextScore
+      
   if g mod print == 0 or g == generations-1:
     let mean = scores.mean()
     echo "generation ", g
